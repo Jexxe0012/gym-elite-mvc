@@ -1,0 +1,367 @@
+﻿
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GYM ELITE</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/GYMELITEGiTHub.styles.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
+
+
+    <style>
+        :root {
+            --gym-green: #10A56D;
+            --gym-dark: #121B19;
+            --gym-white: #FFFFFF;
+            --gym-sidebar-width: 245px;
+        }
+
+        body {
+            margin: 0;
+            background: #F3F6F4;
+            color: #121B19;
+            font-family: 'Roboto', sans-serif;
+            font-size: 19px;
+            font-weight: 400;
+            line-height: 1.45;
+        }
+
+        
+        .gym-sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: var(--gym-sidebar-width);
+            background: #121B19;
+            color: #FFFFFF;
+            padding: 20px 13px;
+            overflow-y: auto;
+            z-index: 1030;
+        }
+
+        .gym-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 22px;
+            border-bottom: 1px solid #34413B;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
+            .gym-brand small {
+                display: block;
+                font-size: 10px;
+                color: #FFFFFF;
+                margin-top: 3px;
+            }
+
+        .gym-menu {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 11px 12px;
+            margin-bottom: 5px;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+            .gym-menu:hover,
+            .gym-menu.active {
+                background: #10A56D;
+                color: #FFFFFF;
+            }
+
+            .gym-menu .menu-icon {
+                width: 20px;
+                text-align: center;
+                font-size: 17px;
+            }
+
+        .gym-sidebar-footer {
+            margin-top: 35px;
+            padding: 12px 8px;
+            font-size: 11px;
+            color: #FFFFFF;
+        }
+
+        .gym-main {
+            margin-left: var(--gym-sidebar-width);
+            min-height: 100vh;
+        }
+
+        .gym-topbar {
+            min-height: 57px;
+            background: white;
+            border-bottom: 1px solid #e1e8e3;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 24px;
+        }
+
+        .gym-search {
+            width: min(480px, 55%);
+        }
+
+        .gym-search input {
+            background: #f7f9f8;
+            border-radius: 8px;
+        }
+
+        .gym-user {
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .gym-user small {
+            display: block;
+            color: #748078;
+        }
+
+        .gym-content {
+            padding: 25px;
+        }
+
+        .gym-content .container {
+            max-width: 100%;
+        }
+
+        @@media (max-width: 768px) {
+            .gym-sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                bottom: auto;
+            }
+
+            .gym-main {
+                margin-left: 0;
+            }
+
+            .gym-sidebar-footer {
+                display: none;
+            }
+
+            .gym-topbar {
+                padding: 12px;
+                flex-wrap: wrap;
+            }
+
+            .gym-search {
+                width: 100%;
+            }
+
+            .gym-content {
+                padding: 15px;
+            }
+        }
+
+        .gym-brand strong {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .gym-content h1 {
+            font-size: 34px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+
+        .gym-content h2 {
+            font-size: 22px;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .gym-content h3 {
+            font-size: 19px;
+            font-weight: 500;
+        }
+
+        .gym-content label {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .gym-content .text-muted,
+        .gym-content small {
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .gym-content .btn {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        /* Mantener blancos todos los enlaces del sidebar */
+        .gym-sidebar a,
+        .gym-sidebar a:link,
+        .gym-sidebar a:visited,
+        .gym-sidebar a:hover,
+        .gym-sidebar a:focus,
+        .gym-sidebar a:active {
+            color: #FFFFFF !important;
+            text-decoration: none;
+        }
+
+        /* La opción seleccionada conserva el fondo verde */
+        .gym-sidebar .gym-menu.active,
+        .gym-sidebar .gym-menu:hover {
+            background-color: #10A56D;
+            color: #FFFFFF !important;
+        }
+
+        /* Mantener blancos el logotipo y el texto inferior */
+        .gym-sidebar .gym-brand,
+        .gym-sidebar .gym-brand strong,
+        .gym-sidebar .gym-brand small,
+        .gym-sidebar .gym-sidebar-footer {
+            color: #FFFFFF !important;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="gym-sidebar">
+        <a class="gym-brand"
+           asp-controller="Home"
+           asp-action="Index">
+            <i class="bi bi-house"></i>
+            <span>
+                <strong>GYM ELITE</strong>
+                <small>GESTIÓN DE GIMNASIO</small>
+            </span>
+        </a>
+
+        
+        <nav aria-label="Menú principal">
+
+            
+            <a class="gym-menu active"
+               asp-controller="Home"
+               asp-action="Index">
+                <i class="bi bi-archive" aria-hidden="true"></i>
+                Inicio
+               
+            </a>
+
+
+            <a class="gym-menu"
+               asp-controller="Socios"
+               asp-action="Index">
+                <i class="bi bi-people-fill"></i>
+                Socios
+            </a>
+
+            <a class="gym-menu"
+               asp-controller="Membresias"
+               asp-action="Index">
+                <i class="bi bi-window-desktop"></i>
+                Membresías
+            </a>
+
+            <a class="gym-menu" 
+                asp-controller="Pagos"
+                asp-action="Index">
+                <span class="menu-icon">$</span>
+                Pagos
+            </a>
+
+            <a class="gym-menu"
+            asp-controller="Accesos"
+            asp-action="Index">
+                <i class="bi bi-check-circle"></i>
+                Accesos
+            </a>
+
+            <a class="gym-menu" 
+                asp-controller="Productos"
+                asp-action="Index">
+                <i class="bi bi-box"></i>
+                Productos
+            </a>
+
+            <a class="gym-menu" 
+            asp-controller="Compras"
+            asp-action="Index">
+                <i class="bi bi-cart-fill"></i>
+                Compras
+            </a>
+
+            <a class="gym-menu" 
+            asp-controller="Ventas"
+            asp-action="Index"> 
+                <span class="menu-icon">🛒</span>
+                Ventas
+            </a>
+
+            <a class="gym-menu" 
+            asp-controller="Reportes"
+            asp-action="Index">
+                <i class="bi bi-easel3"></i>
+                Reportes
+            </a>
+
+        </nav>
+
+
+        <div class="gym-sidebar-footer">
+            <div class="mb-3">Sistema de gestión</div>
+            <div>GYM ELITE · ADMIN</div>
+        </div>
+    </aside>
+
+    <div class="gym-main">
+        <header class="gym-topbar">
+            <form class="gym-search" role="search"
+                  onsubmit="return false;">
+                <input class="form-control form-control-sm"
+                       type="search"
+                       placeholder="Buscar un socio en el panel..."
+                       aria-label="Buscar un socio" />
+            </form>
+
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge text-bg-success">
+                    DEMO - DATOS DE PRUEBA
+                </span>
+
+                <i class="bi bi-person-circle"></i>
+
+                <div class="gym-user">
+                    <strong>Administrador</strong>
+                    <small>GYM ELITE</small>
+                </div>
+            </div>
+        </header>
+
+        <main role="main" class="gym-content">
+            @RenderBody()
+        </main>
+
+        <footer class="text-muted small px-4 pb-3">
+            © 2026 GYM ELITE · Sistema de gestión de gimnasio
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

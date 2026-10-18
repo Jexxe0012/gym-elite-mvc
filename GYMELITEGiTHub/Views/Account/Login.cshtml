@@ -1,0 +1,208 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace GYMELITEGiTHub.Controllers
+
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GYM ELITE | Iniciar sesión</title>
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #121B19;
+            color: white;
+        }
+
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .login-image {
+            flex: 1;
+            background: linear-gradient(rgba(10, 20, 16, .45), rgba(10, 20, 16, .75)), url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=85') center / cover;
+            display: flex;
+            align-items: flex-end;
+            padding: 55px;
+        }
+
+            .login-image h1 {
+                font-size: clamp(36px, 4vw, 60px);
+                font-weight: 800;
+            }
+
+            .login-image p {
+                font-size: 18px;
+                color: #e0e7e3;
+            }
+
+        .login-panel {
+            width: 480px;
+            max-width: 100%;
+            background: #18221F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-form {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .brand {
+            color: #10A56D;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #AAB7B0;
+            margin-bottom: 32px;
+        }
+
+        .form-label {
+            color: #E7EEE9;
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            background: #222F2A;
+            color: white;
+            border: 1px solid #3B4A42;
+            padding: 12px;
+        }
+
+            .form-control:focus, .form-select:focus {
+                background: #222F2A;
+                color: white;
+                border-color: #10A56D;
+                box-shadow: 0 0 0 .2rem rgba(16, 165, 109, .15);
+            }
+
+            .form-control::placeholder {
+                color: #9BA9A1;
+            }
+
+            .form-select option {
+                background: #222F2A;
+                color: white;
+            }
+
+        .btn-login {
+            width: 100%;
+            background: #10A56D;
+            color: white;
+            border: none;
+            padding: 13px;
+            font-weight: 700;
+            margin-top: 12px;
+        }
+
+            .btn-login:hover {
+                background: #0D8C5C;
+                color: white;
+            }
+
+        .login-footer {
+            color: #85958C;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 28px;
+        }
+
+        @@media (max-width: 768px) {
+            .login-image {
+                display: none;
+            }
+
+            .login-panel {
+                width: 100%;
+                min-height: 100vh;
+                padding: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <section class="login-image">
+            <div>
+                <h1>SUPERA TUS<br />LÍMITES.</h1>
+                <p>Tu esfuerzo de hoy construye tu mejor versión.</p>
+            </div>
+        </section>
+
+        <section class="login-panel">
+            <form class="login-form"
+                  asp-controller="Account"
+                  asp-action="Login"
+                  method="get">
+
+                <div class="brand">GYM ELITE</div>
+                <h2 class="h4">Bienvenido</h2>
+                <p class="subtitle">
+                    Ingresa tus datos para acceder al sistema.
+                </p>
+
+                <div class="mb-3">
+                    <label for="usuario" class="form-label">
+                        Usuario
+                    </label>
+                    <input id="usuario"
+                           name="usuario"
+                           class="form-control"
+                           placeholder="Ingresa tu usuario" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="contrasena" class="form-label">
+                        Contraseña
+                    </label>
+                    <input id="contrasena"
+                           name="contrasena"
+                           type="password"
+                           class="form-control"
+                           placeholder="Ingresa tu contraseña" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="rol" class="form-label">
+                        Tipo de usuario
+                    </label>
+                    <select id="rol" name="rol" class="form-select">
+                        <option value="Administrador">Administrador</option>
+                        <option value="Empleado">Empleado</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-login">
+                    Iniciar sesión
+                </button>
+
+                <div class="login-footer">
+                    © 2026 GYM ELITE · Sistema de gestión
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
