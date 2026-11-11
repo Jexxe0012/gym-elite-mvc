@@ -1,0 +1,18 @@
+@model GYMELITEGiTHub.ViewModels.TipoMembresiaFormViewModel
+@{
+    ViewData["Title"] = "Nuevo plan";
+}
+
+<h1 class="h3 mb-3">Nuevo plan de membresía</h1>
+
+<form asp-action="CrearPlan" method="post" class="bg-white border rounded p-4" style="max-width: 640px;">
+    <partial name="_FormularioPlan" model="Model" />
+    <div class="d-flex gap-2">
+        <a asp-action="Planes" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success">Guardar plan</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

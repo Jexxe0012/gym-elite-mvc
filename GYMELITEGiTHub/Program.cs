@@ -21,6 +21,10 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Servicios de aplicación
 builder.Services.AddScoped<ISocioService, SocioService>();
+builder.Services.AddScoped<IMembresiaRepository, MembresiaRepository>();
+builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+builder.Services.AddScoped<IMembresiaService, MembresiaService>();
+builder.Services.AddScoped<ITipoMembresiaService, TipoMembresiaService>();
 
 // Cada módulo nuevo agrega aquí sus propias líneas, por ejemplo:
 // builder.Services.AddScoped<IProductoService, ProductoService>();

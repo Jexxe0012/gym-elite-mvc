@@ -1,0 +1,31 @@
+@using GYMELITEGiTHub.Dtos
+@model EstadoVigencia
+
+@{
+    var (estilo, texto) = Model switch
+    {
+        EstadoVigencia.Vigente =>
+            ("background:#E5F6ED; color:#16865A;", "Vigente"),
+
+        EstadoVigencia.PorVencer =>
+            ("background:#FFF4D6; color:#B7791F;", "Por vencer"),
+
+        EstadoVigencia.PendientePago =>
+            ("background:#E5F0FF; color:#2563EB;", "Pendiente de pago"),
+
+        EstadoVigencia.Vencida =>
+            ("background:#FDE8E8; color:#DC2626;", "Vencida"),
+
+        EstadoVigencia.Cancelada =>
+            ("background:#F1F1F1; color:#555555;", "Cancelada"),
+
+        _ =>
+            ("background:#EDE9FE; color:#7C3AED;", "Programada")
+    };
+}
+
+<span class="badge rounded-pill px-3 py-2"
+      style="@estilo">
+    @texto
+</span>
+
