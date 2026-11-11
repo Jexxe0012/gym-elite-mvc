@@ -1,6 +1,71 @@
-﻿namespace GYMELITEGiTHub.Views.Socios
+@model GYMELITEGiTHub.ViewModels.SocioListaViewModel
+@{
+    ViewData["Title"] = "Socios";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-0">Socios</h1>
+        <small class="text-muted">Administra y consulta los socios registrados.</small>
+    </div>
+    <a asp-action="Crear" class="btn btn-success">+ Nuevo socio</a>
+</div>
+
+@if (TempData["Exito"] is string exito)
 {
-    public class Index
-    {
-    }
+    <div class="alert alert-success">@exito</div>
+}
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="busqueda" value="@Model.Busqueda" class="form-control"
+               placeholder="Buscar por nombre, código o teléfono..." />
+        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+    </div>
+</form>
+
+@if (!Model.Socios.Any())
+{
+    <div class="alert alert-light border">No se encontraron socios.</div>
+}
+else
+{
+    <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre completo</th>
+                    <th>Teléfono</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var socio in Model.Socios)
+            {
+                <tr>
+                    <td>@socio.Codigo</td>
+                    <td>@socio.NombreCompleto</td>
+                    <td>@socio.Telefono</td>
+                    <td>
+                        @if (socio.EstaHabilitado)
+                        {
+                                <span class="badge" style="background:#E5F6ED; color:#16865A;">Habilitado</span>
+                            
+                        }
+                        else
+                        {
+                                <span class="badge" style="background:#FCEAE8; color:#B8433B;">Inactivo</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Detalle" asp-route-id="@socio.Id">Ver</a> ·
+                        <a asp-action="Editar" asp-route-id="@socio.Id">Editar</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
 }

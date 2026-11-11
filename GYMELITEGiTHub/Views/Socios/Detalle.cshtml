@@ -1,0 +1,28 @@
+@model GYMELITEGiTHub.Dtos.SocioDto
+@{
+    ViewData["Title"] = "Ficha del socio";
+}
+
+<h1 class="h3 mb-3">@Model.NombreCompleto <small class="text-muted">@Model.Codigo</small></h1>
+
+<div class="bg-white border rounded p-4" style="max-width: 640px;">
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Teléfono</dt><dd class="col-sm-8">@Model.Telefono</dd>
+        <dt class="col-sm-4">Correo</dt><dd class="col-sm-8">@(Model.Correo ?? "—")</dd>
+        <dt class="col-sm-4">Nacimiento</dt><dd class="col-sm-8">@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "—")</dd>
+        <dt class="col-sm-4">Código QR</dt><dd class="col-sm-8"><code>@Model.CodigoQr</code></dd>
+        <dt class="col-sm-4">Estado</dt><dd class="col-sm-8">@(Model.EstaHabilitado ? "Habilitado" : "Inactivo")</dd>
+    </dl>
+</div>
+
+<div class="d-flex gap-2 mt-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+    <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-success">Editar</a>
+    @if (Model.EstaHabilitado)
+    {
+        <form asp-action="Desactivar" asp-route-id="@Model.Id" method="post"
+              onsubmit="return confirm('¿Desactivar la ficha de este socio?');">
+            <button type="submit" class="btn btn-outline-danger">Desactivar</button>
+        </form>
+    }
+</div>
