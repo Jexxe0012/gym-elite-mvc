@@ -1,0 +1,24 @@
+@model GYMELITEGiTHub.ViewModels.SocioEditViewModel
+@{
+    ViewData["Title"] = "Editar socio";
+}
+
+<h1 class="h3 mb-3">Editar socio <small class="text-muted">@Model.Codigo</small></h1>
+
+<form asp-action="Editar" method="post" class="bg-white border rounded p-4" style="max-width: 640px;">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Codigo" />
+    <partial name="_FormularioSocio" model="Model" />
+    <div class="form-check mb-3">
+        <input asp-for="EstaHabilitado" class="form-check-input" />
+        <label asp-for="EstaHabilitado" class="form-check-label"></label>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success">Guardar cambios</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,22 @@
+@model GYMELITEGiTHub.ViewModels.SocioCreateViewModel
+
+<div class="mb-3">
+    <label asp-for="NombreCompleto" class="form-label"></label>
+    <input asp-for="NombreCompleto" class="form-control" />
+    <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Telefono" class="form-label"></label>
+    <input asp-for="Telefono" class="form-control" />
+    <span asp-validation-for="Telefono" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Correo" class="form-label"></label>
+    <input asp-for="Correo" class="form-control" />
+    <span asp-validation-for="Correo" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="FechaNacimiento" class="form-label"></label>
+    <input asp-for="FechaNacimiento" type="date" class="form-control" />
+    <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+</div>
