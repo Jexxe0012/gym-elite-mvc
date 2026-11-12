@@ -1,0 +1,24 @@
+@model GYMELITEGiTHub.ViewModels.TipoMembresiaFormViewModel
+@{
+    ViewData["Title"] = "Editar plan";
+}
+
+<h1 class="h3 mb-3">Editar plan <small class="text-muted">@Model.Nombre</small></h1>
+
+<form asp-action="EditarPlan" method="post" class="bg-white border rounded p-4" style="max-width: 640px;">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_FormularioPlan" model="Model" />
+    <div class="form-check mb-3">
+        <input asp-for="Activo" class="form-check-input" />
+        <label asp-for="Activo" class="form-check-label"></label>
+    </div>
+    <p class="text-muted small">Los cambios de precio o duración aplican a las membresías que se registren a partir de ahora.</p>
+    <div class="d-flex gap-2">
+        <a asp-action="Planes" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success">Guardar cambios</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

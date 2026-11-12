@@ -1,0 +1,10 @@
+@* Muestra los errores que no pertenecen a un campo (por ejemplo, reglas de negocio). *@
+@if (ViewData.ModelState.TryGetValue(string.Empty, out var entradaGeneral) && entradaGeneral.Errors.Any())
+{
+    <div class="alert alert-danger">
+        @foreach (var error in entradaGeneral.Errors)
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
