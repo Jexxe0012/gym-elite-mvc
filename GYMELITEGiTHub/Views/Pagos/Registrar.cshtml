@@ -1,0 +1,85 @@
+@using GYMELITEGiTHub.Dtos
+@model GYMELITEGiTHub.ViewModels.PagoRegistrarViewModel
+@{
+    ViewData["Title"] = "Registrar pago";
+    var membresia = Model.MembresiaSeleccionada;
+}
+
+<h1 class="h3 mb-3">Registrar pago</h1>
+<p class="text-muted">Selecciona una membresía pendiente y confirma el cobro en efectivo.</p>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success" role="status">@exito</div>
+}
+@if (TempData["Aviso"] is string aviso)
+{
+    <div class="alert alert-warning" role="status">@aviso</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+<partial name="_ErroresGenerales" />
+
+@if (!Model.Membresias.Any())
+{
+    <div class="alert alert-light border">
+        No hay membresías pendientes disponibles para cobrar.
+        <a asp-controller="Membresias" asp-action="Index">Consultar membresías</a>.
+        <div><span asp-validation-for="MembresiaId" class="text-danger"></span></div>
+    </div>
+}
+else
+{
+    <form asp-action="Registrar" method="get" class="bg-white border rounded p-4 mb-3" style="max-width: 760px;">
+        <div class="mb-3">
+            <label asp-for="MembresiaId" class="form-label"></label>
+            <select asp-for="MembresiaId" asp-items="Model.Membresias" class="form-select">
+                <option value="">-- Seleccione una membresía --</option>
+            </select>
+            <span asp-validation-for="MembresiaId" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-outline-success">Consultar monto</button>
+    </form>
+}
+
+@if (membresia is not null)
+{
+    <section class="bg-white border rounded p-4 mb-3" style="max-width: 760px;" aria-labelledby="resumen-cobro">
+        <h2 id="resumen-cobro" class="h5 mb-3">Resumen del cobro</h2>
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Socio</dt>
+            <dd class="col-sm-8">@membresia.SocioCodigo · @membresia.SocioNombre</dd>
+            <dt class="col-sm-4">Plan</dt>
+            <dd class="col-sm-8">@membresia.TipoNombre (@membresia.Modalidad)</dd>
+            <dt class="col-sm-4">Período de cobertura</dt>
+            <dd class="col-sm-8">@membresia.FechaInicio.ToString("dd/MM/yyyy") al @membresia.FechaFin.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-4">Períodos adquiridos</dt>
+            <dd class="col-sm-8">@membresia.PeriodosAdquiridos</dd>
+            <dt class="col-sm-4">Forma de pago</dt>
+            <dd class="col-sm-8">Efectivo</dd>
+            <dt class="col-sm-4">Total a cobrar</dt>
+            <dd class="col-sm-8 fw-bold">@membresia.TotalTexto</dd>
+        </dl>
+
+        @if (membresia.Vigencia == EstadoVigencia.PendientePago)
+        {
+            <p class="text-muted mt-3">El monto se calcula con el plan y los períodos de la membresía.</p>
+            <form asp-action="Registrar" method="post">
+                <input type="hidden" name="MembresiaId" value="@membresia.Id" />
+                <button type="submit" class="btn btn-success">Confirmar cobro en efectivo</button>
+            </form>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-3 mb-0">Esta membresía ya no está pendiente de pago. Selecciona otra membresía.</div>
+        }
+    </section>
+}
+
+<a asp-action="Index" class="btn btn-outline-secondary">Volver al historial</a>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

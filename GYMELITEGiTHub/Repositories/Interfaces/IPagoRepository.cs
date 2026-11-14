@@ -1,10 +1,10 @@
+using GYMELITEGiTHub.Dtos;
 using GYMELITEGiTHub.Models;
 
 namespace GYMELITEGiTHub.Repositories.Interfaces;
 
 /// <summary>
-/// Base del repositorio de pagos. El módulo Pagos lo amplía con sus propias consultas
-/// (búsqueda del historial, pagos del día, etc.).
+/// Consultas del historial y de los comprobantes. No confirma cambios.
 /// </summary>
 public interface IPagoRepository : IRepository<Pago>
 {
@@ -13,4 +13,8 @@ public interface IPagoRepository : IRepository<Pago>
 
     /// <summary>Siguiente número de recibo con formato P-0001.</summary>
     Task<string> GenerarSiguienteNumeroReciboAsync();
+
+    Task<List<Pago>> BuscarAsync(string? texto, string? estado, DateOnly? desde, DateOnly? hasta);
+    Task<Pago?> GetConDetalleAsync(int id);
+    Task<ResumenPagosDiaDto> ObtenerResumenDelDiaAsync(DateOnly fecha);
 }

@@ -1,0 +1,90 @@
+@model GYMELITEGiTHub.Dtos.CompraDto
+@{
+    ViewData["Title"] = "Compra " + Model.Numero;
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h3 mb-0">Compra @Model.Numero <small class="text-muted">GYM ELITE</small></h1>
+    <button type="button" class="btn btn-outline-secondary compra-acciones" onclick="window.print()">Imprimir</button>
+</div>
+
+<div class="compra-acciones">
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success" role="status">@exito</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+</div>
+
+<article class="bg-white border rounded p-4" style="max-width: 900px;">
+    @if (Model.EstaAnulada)
+    {
+        <div class="alert alert-secondary border fw-bold">ANULADA: la compra se conserva en el historial y sus unidades ya se descontaron del inventario.</div>
+    }
+
+    <dl class="row mb-3">
+        <dt class="col-sm-3">Proveedor</dt>
+        <dd class="col-sm-9">
+            <a asp-controller="Proveedores" asp-action="Detalle" asp-route-id="@Model.ProveedorId">@Model.ProveedorNombre</a>
+        </dd>
+        <dt class="col-sm-3">Fecha</dt><dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</dd>
+        <dt class="col-sm-3">Estado</dt>
+        <dd class="col-sm-9"><span class="badge @(Model.EstaAnulada ? "bg-secondary" : "bg-success") text-white">@Model.Estado</span></dd>
+        <dt class="col-sm-3">Registrada por</dt><dd class="col-sm-9">@Model.UsuarioResponsableId</dd>
+    </dl>
+
+    <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col" class="text-end">Cantidad</th>
+                    <th scope="col" class="text-end">Costo unitario</th>
+                    <th scope="col" class="text-end">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var l in Model.Lineas)
+            {
+                <tr>
+                    <td>@l.ProductoCodigo</td>
+                    <td>@l.ProductoNombre</td>
+                    <td class="text-end">@l.Cantidad</td>
+                    <td class="text-end text-nowrap">@l.CostoUnitarioTexto</td>
+                    <td class="text-end text-nowrap">@l.SubtotalTexto</td>
+                </tr>
+            }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="4" class="text-end">Total</th>
+                    <td class="text-end fw-bold text-nowrap">@Model.TotalTexto</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</article>
+
+<div class="compra-acciones d-flex flex-wrap gap-2 mt-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver a compras</a>
+    @if (!Model.EstaAnulada)
+    {
+        <form asp-action="Anular" asp-route-id="@Model.Id" method="post"
+              onsubmit="return confirm('¿Anular esta compra? Se descontarán sus unidades del inventario. La compra quedará en el historial como anulada.');">
+            <button type="submit" class="btn btn-outline-danger">Anular compra</button>
+        </form>
+    }
+</div>
+
+<style>
+    @@media print {
+        .gym-sidebar, .gym-topbar, .gym-main > footer, .compra-acciones { display: none !important; }
+        .gym-main { margin-left: 0 !important; }
+        .gym-content { padding: 0 !important; }
+        body { background: white !important; }
+    }
+</style>
