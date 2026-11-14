@@ -1,0 +1,21 @@
+@model GYMELITEGiTHub.ViewModels.ProveedorEditViewModel
+@{
+    ViewData["Title"] = "Editar proveedor";
+}
+
+<h1 class="h3 mb-3">Editar proveedor</h1>
+
+<partial name="_ErroresGenerales" />
+
+<form asp-action="Editar" method="post" class="bg-white border rounded p-4" style="max-width: 640px;">
+    <input type="hidden" asp-for="Id" />
+    <partial name="_FormularioProveedor" model="Model" />
+    <div class="d-flex gap-2">
+        <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success">Guardar cambios</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
