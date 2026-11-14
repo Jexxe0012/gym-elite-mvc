@@ -1,0 +1,9 @@
+@model GYMELITEGiTHub.ViewModels.ProductoAjusteViewModel
+@{ ViewData["Title"] = "Ajustar inventario"; }
+<h1 class="h3">Ajustar inventario</h1><p><strong>@Model.Producto</strong> · Existencias actuales: @Model.ExistenciasActuales</p>
+<form asp-action="Ajustar" method="post" class="card"><input asp-for="ProductoId" type="hidden"/><input asp-for="Producto" type="hidden"/><input asp-for="ExistenciasActuales" type="hidden"/><div class="card-body"><partial name="_ErroresGenerales"/>
+ <div class="mb-3"><label asp-for="Tipo" class="form-label"></label><select asp-for="Tipo" class="form-select"><option>Entrada</option><option>Salida</option></select></div>
+ <div class="mb-3"><label asp-for="Cantidad" class="form-label"></label><input asp-for="Cantidad" class="form-control"/><span asp-validation-for="Cantidad" class="text-danger"></span></div>
+ <div class="mb-3"><label asp-for="Motivo" class="form-label"></label><textarea asp-for="Motivo" class="form-control"></textarea><span asp-validation-for="Motivo" class="text-danger"></span></div>
+ </div><div class="card-footer"><button class="btn btn-success">Registrar ajuste</button> <a asp-action="Detalle" asp-route-id="@Model.ProductoId" class="btn btn-outline-secondary">Cancelar</a></div></form>
+@section Scripts { <partial name="_ValidationScriptsPartial"/> }
