@@ -1,0 +1,71 @@
+@model GYMELITEGiTHub.ViewModels.ProveedorListaViewModel
+@{
+    ViewData["Title"] = "Proveedores";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-0">Proveedores</h1>
+        <small class="text-muted">Empresas a las que el gimnasio compra productos.</small>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Compras" asp-action="Index" class="btn btn-outline-secondary">Ver compras</a>
+        <a asp-action="Crear" class="btn btn-success">+ Nuevo proveedor</a>
+    </div>
+</div>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success" role="status">@exito</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+<partial name="_ErroresGenerales" />
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="search" name="busqueda" value="@Model.Busqueda" class="form-control"
+               placeholder="Buscar por nombre, teléfono o correo..." />
+        <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+    </div>
+</form>
+
+@if (!Model.Proveedores.Any())
+{
+    <div class="alert alert-light border">No se encontraron proveedores.</div>
+}
+else
+{
+    <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Teléfono</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col" class="text-end">Compras</th>
+                    <th scope="col">Última compra</th>
+                    <th scope="col" class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var p in Model.Proveedores)
+            {
+                <tr>
+                    <td>@p.Nombre</td>
+                    <td>@p.Telefono</td>
+                    <td>@(p.Correo ?? "Sin correo")</td>
+                    <td class="text-end">@p.CantidadCompras</td>
+                    <td>@(p.UltimaCompra?.ToString("dd/MM/yyyy") ?? "Sin compras")</td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Detalle" asp-route-id="@p.Id">Ver</a> ·
+                        <a asp-action="Editar" asp-route-id="@p.Id">Editar</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

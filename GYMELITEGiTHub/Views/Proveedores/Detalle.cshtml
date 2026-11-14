@@ -1,0 +1,77 @@
+@model GYMELITEGiTHub.Dtos.ProveedorDto
+@{
+    ViewData["Title"] = "Proveedor " + Model.Nombre;
+}
+
+<h1 class="h3 mb-3">@Model.Nombre</h1>
+
+@if (TempData["Exito"] is string exito)
+{
+    <div class="alert alert-success" role="status">@exito</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<div class="bg-white border rounded p-4 mb-3" style="max-width: 640px;">
+    <dl class="row mb-0">
+        <dt class="col-sm-4">Teléfono</dt><dd class="col-sm-8">@Model.Telefono</dd>
+        <dt class="col-sm-4">Correo</dt><dd class="col-sm-8">@(Model.Correo ?? "Sin correo")</dd>
+        <dt class="col-sm-4">Compras</dt><dd class="col-sm-8">@Model.CantidadCompras</dd>
+        <dt class="col-sm-4">Última compra</dt><dd class="col-sm-8">@(Model.UltimaCompra?.ToString("dd/MM/yyyy HH:mm") ?? "Sin compras")</dd>
+    </dl>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+    <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-success">Editar</a>
+    <a asp-controller="Compras" asp-action="Nueva" asp-route-proveedorId="@Model.Id" class="btn btn-outline-success">Registrar compra</a>
+    @if (Model.SePuedeEliminar)
+    {
+        <form asp-action="Eliminar" asp-route-id="@Model.Id" method="post"
+              onsubmit="return confirm('¿Eliminar este proveedor? Esta acción no se puede deshacer.');">
+            <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+        </form>
+    }
+    else
+    {
+        <span class="text-muted align-self-center">No se puede eliminar porque tiene compras en el historial.</span>
+    }
+</div>
+
+<h2 class="h5">Compras de este proveedor</h2>
+@if (!Model.Compras.Any())
+{
+    <div class="alert alert-light border">Todavía no hay compras registradas con este proveedor.</div>
+}
+else
+{
+    <div class="table-responsive bg-white border rounded">
+        <table class="table table-hover mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Número</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col" class="text-end">Unidades</th>
+                    <th scope="col" class="text-end">Total</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var c in Model.Compras)
+            {
+                <tr>
+                    <td>@c.Numero</td>
+                    <td>@c.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="text-end">@c.Unidades</td>
+                    <td class="text-end text-nowrap">@c.TotalTexto</td>
+                    <td><span class="badge @(c.EstaAnulada ? "bg-secondary" : "bg-success") text-white">@c.Estado</span></td>
+                    <td class="text-end"><a asp-controller="Compras" asp-action="Detalle" asp-route-id="@c.Id">Ver</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

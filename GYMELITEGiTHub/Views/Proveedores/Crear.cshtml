@@ -1,0 +1,21 @@
+@model GYMELITEGiTHub.ViewModels.ProveedorCreateViewModel
+@{
+    ViewData["Title"] = "Nuevo proveedor";
+}
+
+<h1 class="h3 mb-3">Nuevo proveedor</h1>
+<p class="text-muted">El nombre y el teléfono son obligatorios. No se permiten dos proveedores con el mismo nombre.</p>
+
+<partial name="_ErroresGenerales" />
+
+<form asp-action="Crear" method="post" class="bg-white border rounded p-4" style="max-width: 640px;">
+    <partial name="_FormularioProveedor" model="Model" />
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success">Guardar proveedor</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
