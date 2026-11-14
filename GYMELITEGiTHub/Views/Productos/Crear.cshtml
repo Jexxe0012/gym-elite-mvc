@@ -1,0 +1,15 @@
+@model GYMELITEGiTHub.ViewModels.ProductoCreateViewModel
+@{ ViewData["Title"] = "Nuevo producto"; }
+<h1 class="h3">Nuevo producto</h1>
+<form asp-action="Crear" method="post" class="card"><div class="card-body">
+ <partial name="_ErroresGenerales" />
+ <div class="row g-3">
+  <div class="col-md-4"><label asp-for="Codigo" class="form-label"></label><input asp-for="Codigo" class="form-control" placeholder="PR-001"/><span asp-validation-for="Codigo" class="text-danger"></span></div>
+  <div class="col-md-8"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control"/><span asp-validation-for="Nombre" class="text-danger"></span></div>
+  <div class="col-md-6"><label asp-for="Categoria" class="form-label"></label><select asp-for="Categoria" class="form-select"><option value="">Seleccione...</option>@foreach(var c in GYMELITEGiTHub.ViewModels.ProductoCreateViewModel.Categorias){<option>@c</option>}</select><span asp-validation-for="Categoria" class="text-danger"></span></div>
+  <div class="col-md-6"><label asp-for="PrecioVenta" class="form-label"></label><input asp-for="PrecioVenta" class="form-control"/><span asp-validation-for="PrecioVenta" class="text-danger"></span></div>
+  <div class="col-md-6"><label asp-for="StockMinimo" class="form-label"></label><input asp-for="StockMinimo" class="form-control"/><span asp-validation-for="StockMinimo" class="text-danger"></span></div>
+  <div class="col-md-6"><label asp-for="ExistenciaInicial" class="form-label"></label><input asp-for="ExistenciaInicial" class="form-control"/><span asp-validation-for="ExistenciaInicial" class="text-danger"></span></div>
+ </div>
+</div><div class="card-footer"><button class="btn btn-success">Guardar</button> <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a></div></form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

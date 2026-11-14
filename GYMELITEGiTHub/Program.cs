@@ -7,39 +7,44 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Base de datos (Entity Framework Core + SQL Server)
+// Base de datos
 builder.Services.AddDbContext<GymEliteDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("GymEliteDb")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("GymEliteDb")));
 
-// Repositorios y unidad de trabajo
+// Repositorio genérico y unidad de trabajo
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<ISocioRepository, SocioRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// Servicios de aplicación
-builder.Services.AddScoped<ISocioService, SocioService>();
+// Repositorios
+builder.Services.AddScoped<ISocioRepository, SocioRepository>();
 builder.Services.AddScoped<IMembresiaRepository, MembresiaRepository>();
 builder.Services.AddScoped<IPagoRepository, PagoRepository>();
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+
+// Servicios
+builder.Services.AddScoped<ISocioService, SocioService>();
 builder.Services.AddScoped<IMembresiaService, MembresiaService>();
 builder.Services.AddScoped<ITipoMembresiaService, TipoMembresiaService>();
 builder.Services.AddScoped<IPagoService, PagoService>();
-builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
+builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
-builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 builder.Services.AddScoped<IProveedorService, ProveedorService>();
-builder.Services.AddScoped<ICompraRepository, CompraRepository>();
 builder.Services.AddScoped<ICompraService, CompraService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
