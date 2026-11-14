@@ -1,6 +1,280 @@
-﻿namespace GYMELITEGiTHub.Views.Reportes
+@using System.Globalization
+@model GYMELITEGiTHub.ViewModels.ReporteViewModel
+@{
+    ViewData["Title"] = "Reportes";
+    string Moneda(decimal monto) => "$" + monto.ToString("N2", CultureInfo.InvariantCulture);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-0">Reportes</h1>
+        <small class="text-muted">Consulta los ingresos, las ventas y las existencias del gimnasio.</small>
+    </div>
+</div>
+
+<partial name="_ErroresGenerales" />
+
+<form asp-action="Index" method="get" class="row g-2 mb-4 align-items-start" aria-describedby="ayuda-periodo">
+    <div class="col-sm-6 col-lg-3">
+        <label asp-for="FechaDesde" class="form-label"></label>
+        <input asp-for="FechaDesde" type="date" class="form-control" required />
+        <span asp-validation-for="FechaDesde" class="text-danger"></span>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <label asp-for="FechaHasta" class="form-label"></label>
+        <input asp-for="FechaHasta" type="date" class="form-control" required />
+        <span asp-validation-for="FechaHasta" class="text-danger"></span>
+    </div>
+    <div class="col-lg-6">
+        <div class="form-label d-none d-lg-block" aria-hidden="true">&nbsp;</div>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-success">Generar reporte</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Mes actual</a>
+        </div>
+    </div>
+    <div class="col-12">
+        <small id="ayuda-periodo" class="text-muted">Selecciona un período de hasta tres meses. Se incluyen la fecha inicial y la final.</small>
+    </div>
+</form>
+
+@if (Model.ReporteGenerado)
 {
-    public class Index
-    {
-    }
+    <p class="text-muted mb-3">Período: <strong>@(Model.FechaDesde?.ToString("dd/MM/yyyy")) al @(Model.FechaHasta?.ToString("dd/MM/yyyy"))</strong></p>
+
+    <section aria-labelledby="titulo-resumen" class="mb-4">
+        <h2 id="titulo-resumen" class="h5 mb-3">Resumen de ingresos</h2>
+        <div class="row g-3">
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white border rounded p-3 h-100">
+                    <div class="text-muted mb-1">Ingresos totales</div>
+                    <div class="h3 mb-1">@Moneda(Model.Resumen.IngresosTotales)</div>
+                    <small class="text-muted">Membresías y productos</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white border rounded p-3 h-100">
+                    <div class="text-muted mb-1">Ingresos de membresías</div>
+                    <div class="h3 mb-1">@Moneda(Model.Resumen.IngresosMembresias)</div>
+                    <small class="text-muted">@Model.Resumen.CantidadPagos cobros registrados</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white border rounded p-3 h-100">
+                    <div class="text-muted mb-1">Ingresos de productos</div>
+                    <div class="h3 mb-1">@Moneda(Model.Resumen.IngresosProductos)</div>
+                    <small class="text-muted">@Model.Resumen.CantidadVentas ventas registradas</small>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-white border rounded p-3 h-100">
+                    <div class="text-muted mb-1">Ticket promedio</div>
+                    <div class="h3 mb-1">@Moneda(Model.Resumen.TicketPromedio)</div>
+                    <small class="text-muted">@(Model.Resumen.CantidadVentas == 0 ? "Sin ventas en el período" : "Promedio por venta de productos")</small>
+                </div>
+            </div>
+        </div>
+        <p class="small text-muted mt-2 mb-0">Los ingresos y las cantidades de operaciones excluyen los pagos y las ventas anulados.</p>
+    </section>
+
+    <section aria-labelledby="titulo-ingresos-dia" class="mb-4">
+        <h2 id="titulo-ingresos-dia" class="h5 mb-3">Ingresos por día</h2>
+        @if (Model.IngresosPorDia.Count == 0)
+        {
+            <div class="alert alert-light border">No hay ingresos diarios disponibles para el período seleccionado.</div>
+        }
+        else
+        {
+            <div class="table-responsive bg-white border rounded">
+                <table class="table table-hover mb-0 align-middle">
+                    <caption class="visually-hidden">Ingresos diarios por membresías y productos del período seleccionado.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha</th>
+                            <th scope="col" class="text-end">Membresías</th>
+                            <th scope="col" class="text-end">Productos</th>
+                            <th scope="col" class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var dia in Model.IngresosPorDia)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal text-nowrap">@dia.Fecha.ToString("dd/MM/yyyy")</th>
+                                <td class="text-end text-nowrap">@Moneda(dia.Membresias)</td>
+                                <td class="text-end text-nowrap">@Moneda(dia.Productos)</td>
+                                <td class="text-end text-nowrap">@Moneda(dia.Total)</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <th scope="row">Total del período</th>
+                            <td class="text-end text-nowrap">@Moneda(Model.Resumen.IngresosMembresias)</td>
+                            <td class="text-end text-nowrap">@Moneda(Model.Resumen.IngresosProductos)</td>
+                            <td class="text-end text-nowrap">@Moneda(Model.Resumen.IngresosTotales)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section aria-labelledby="titulo-ingresos-modalidad" class="mb-4">
+        <h2 id="titulo-ingresos-modalidad" class="h5 mb-3">Ingresos por modalidad</h2>
+        <p class="small text-muted">Compara los cobros de cada modalidad de membresía con las ventas de productos.</p>
+        @if (Model.IngresosPorModalidad.Count == 0)
+        {
+            <p class="text-muted">No se registraron cobros de membresías en este período.</p>
+        }
+        <div class="table-responsive bg-white border rounded">
+            <table class="table table-hover mb-0 align-middle">
+                <caption class="visually-hidden">Comparación de ingresos por modalidad de membresía y por venta de productos.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Origen</th>
+                        <th scope="col" class="text-end">Cobros o ventas</th>
+                        <th scope="col" class="text-end">Ingresos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var modalidad in Model.IngresosPorModalidad)
+                    {
+                        <tr>
+                            <th scope="row" class="fw-normal">@modalidad.Modalidad</th>
+                            <td class="text-end">@modalidad.CantidadPagos</td>
+                            <td class="text-end text-nowrap">@Moneda(modalidad.Monto)</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th scope="row" class="fw-normal">Venta de productos</th>
+                        <td class="text-end">@Model.Resumen.CantidadVentas</td>
+                        <td class="text-end text-nowrap">@Moneda(Model.Resumen.IngresosProductos)</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <th scope="row">Total del período</th>
+                        <td class="text-end">@(Model.Resumen.CantidadPagos + Model.Resumen.CantidadVentas)</td>
+                        <td class="text-end text-nowrap">@Moneda(Model.Resumen.IngresosTotales)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </section>
+
+    <section aria-labelledby="titulo-productos-vendidos" class="mb-4">
+        <h2 id="titulo-productos-vendidos" class="h5 mb-3">Productos más vendidos</h2>
+        <p class="small text-muted">Los cinco productos con más unidades vendidas en el período, sin ventas anuladas.</p>
+        @if (Model.ProductosMasVendidos.Count == 0)
+        {
+            <div class="alert alert-light border">No se registraron ventas de productos en el período seleccionado.</div>
+        }
+        else
+        {
+            <div class="table-responsive bg-white border rounded">
+                <table class="table table-hover mb-0 align-middle">
+                    <caption class="visually-hidden">Los cinco productos más vendidos del período seleccionado.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col" class="text-end">Unidades</th>
+                            <th scope="col" class="text-end">Importe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in Model.ProductosMasVendidos)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@producto.Codigo</td>
+                                <th scope="row" class="fw-normal">@producto.Nombre</th>
+                                <td class="text-end">@producto.Unidades</td>
+                                <td class="text-end text-nowrap">@Moneda(producto.Importe)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section aria-labelledby="titulo-movimientos" class="mb-4">
+        <h2 id="titulo-movimientos" class="h5 mb-3">Movimientos por producto</h2>
+        <p class="small text-muted">Las entradas y salidas corresponden al período seleccionado. La existencia es la actual y puede incluir movimientos posteriores al período. Se incluyen los productos sin movimientos.</p>
+        @if (Model.MovimientosPorProducto.Count == 0)
+        {
+            <div class="alert alert-light border">No hay productos registrados para consultar sus movimientos.</div>
+        }
+        else
+        {
+            <div class="table-responsive bg-white border rounded">
+                <table class="table table-hover mb-0 align-middle">
+                    <caption class="visually-hidden">Entradas y salidas del período por producto, junto con su existencia actual.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col" class="text-end">Entradas</th>
+                            <th scope="col" class="text-end">Salidas</th>
+                            <th scope="col" class="text-end">Existencia actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in Model.MovimientosPorProducto)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@producto.Codigo</td>
+                                <th scope="row" class="fw-normal">@producto.Nombre</th>
+                                <td class="text-end">@producto.Entradas</td>
+                                <td class="text-end">@producto.Salidas</td>
+                                <td class="text-end">@producto.ExistenciaActual</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section aria-labelledby="titulo-existencias" class="mb-4">
+        <h2 id="titulo-existencias" class="h5 mb-3">Existencias críticas</h2>
+        <p class="small text-muted">Productos activos con existencia actual igual o menor al mínimo. Este reporte muestra el inventario actual y no depende del período seleccionado.</p>
+        @if (Model.ExistenciasCriticas.Count == 0)
+        {
+            <div class="alert alert-light border">No hay productos activos con existencias críticas.</div>
+        }
+        else
+        {
+            <div class="table-responsive bg-white border rounded">
+                <table class="table table-hover mb-0 align-middle">
+                    <caption class="visually-hidden">Productos activos cuya existencia actual es igual o menor al mínimo.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Código</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col" class="text-end">Existencias</th>
+                            <th scope="col" class="text-end">Mínimo</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in Model.ExistenciasCriticas)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@producto.Codigo</td>
+                                <th scope="row" class="fw-normal">@producto.Nombre</th>
+                                <td class="text-end">@producto.Existencias</td>
+                                <td class="text-end">@producto.StockMinimo</td>
+                                <td><span class="badge @(producto.Existencias <= 0 ? "bg-danger text-white" : "bg-warning text-dark")">@(producto.Existencias <= 0 ? "Agotado" : "Stock bajo")</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
+else if (ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-light border">Selecciona un período y genera el reporte para consultar los resultados.</div>
 }

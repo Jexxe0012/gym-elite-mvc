@@ -1,0 +1,98 @@
+@model GYMELITEGiTHub.Dtos.PagoDto
+@{
+    ViewData["Title"] = "Recibo " + Model.NumeroRecibo;
+}
+
+<div class="recibo-acciones d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="h3 mb-0">Recibo de pago</h1>
+    <button type="button" class="btn btn-success" onclick="window.print()">Imprimir recibo</button>
+</div>
+
+<div class="recibo-mensajes">
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="alert alert-success" role="status">@exito</div>
+    }
+    @if (TempData["Aviso"] is string aviso)
+    {
+        <div class="alert alert-warning" role="status">@aviso</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+    <partial name="_ErroresGenerales" />
+</div>
+
+<article class="recibo-pago bg-white border rounded p-4" style="max-width: 800px;" aria-labelledby="titulo-recibo">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 border-bottom pb-3 mb-3">
+        <div>
+            <h2 id="titulo-recibo" class="h4 mb-1">GYM ELITE</h2>
+            <div class="text-muted">Recibo de pago de membresía</div>
+        </div>
+        <div>
+            <div class="fw-bold">@Model.NumeroRecibo</div>
+            <div>@Model.FechaHoraCobro.ToString("dd/MM/yyyy HH:mm")</div>
+            <span class="badge @(Model.EstaAnulado ? "bg-secondary" : "bg-success") text-white">@Model.Estado</span>
+        </div>
+    </div>
+
+    @if (Model.EstaAnulado)
+    {
+        <div class="alert alert-secondary border fw-bold">ANULADO: este pago se conserva en el historial y no cuenta como cobro válido.</div>
+    }
+
+    <dl class="row mb-3">
+        <dt class="col-sm-4">Código del socio</dt>
+        <dd class="col-sm-8">@Model.SocioCodigo</dd>
+        <dt class="col-sm-4">Nombre del socio</dt>
+        <dd class="col-sm-8">@Model.SocioNombre</dd>
+        <dt class="col-sm-4">Membresía</dt>
+        <dd class="col-sm-8">#@Model.MembresiaId</dd>
+        <dt class="col-sm-4">Forma de pago</dt>
+        <dd class="col-sm-8">Efectivo</dd>
+    </dl>
+
+    <div class="table-responsive mb-3">
+        <table class="table mb-0">
+            <thead><tr><th scope="col">Concepto</th><th scope="col" class="text-end">Importe</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div>@Model.PlanNombre (@Model.Modalidad)</div>
+                        <small class="text-muted">@Model.PeriodosAdquiridos período(s), del @Model.FechaInicio.ToString("dd/MM/yyyy") al @Model.FechaFin.ToString("dd/MM/yyyy")</small>
+                    </td>
+                    <td class="text-end text-nowrap">@Model.MontoTexto</td>
+                </tr>
+            </tbody>
+            <tfoot><tr><th scope="row">Total cobrado</th><td class="text-end fw-bold text-nowrap">@Model.MontoTexto</td></tr></tfoot>
+        </table>
+    </div>
+    <p class="small text-muted mb-0">Comprobante del cobro registrado. Su reimpresión conserva el mismo número de recibo.</p>
+</article>
+
+<div class="recibo-acciones d-flex flex-wrap gap-2 mt-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver al historial</a>
+    <a asp-controller="Membresias" asp-action="Detalle" asp-route-id="@Model.MembresiaId" class="btn btn-outline-secondary">Ver membresía</a>
+    @if (!Model.EstaAnulado)
+    {
+        <form asp-action="Anular" asp-route-id="@Model.Id" method="post"
+              onsubmit="return confirm('¿Anular este pago? El recibo se conservará como anulado y dejará de respaldar la membresía.');">
+            <button type="submit" class="btn btn-outline-danger">Anular pago</button>
+        </form>
+    }
+</div>
+
+<style>
+    @@media print {
+        .gym-sidebar, .gym-topbar, .gym-main > footer, .recibo-acciones, .recibo-mensajes {
+            display: none !important;
+        }
+        body { background: white !important; font-size: 12pt !important; }
+        .gym-main { margin-left: 0 !important; min-height: auto !important; }
+        .gym-content { padding: 0 !important; }
+        .recibo-pago { max-width: 100% !important; width: 100%; box-shadow: none !important; break-inside: avoid; }
+        .recibo-pago .table-responsive { overflow: visible !important; }
+        .recibo-pago .badge { color: black !important; background: white !important; border: 1px solid black; }
+    }
+</style>

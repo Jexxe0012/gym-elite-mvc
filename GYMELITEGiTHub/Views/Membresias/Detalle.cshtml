@@ -37,6 +37,10 @@
             @if (Model.TienePagoValido)
             {
                 <span>Recibo @Model.NumeroRecibo · @Model.MontoPagadoTexto · @Model.FechaPago?.ToString("dd/MM/yyyy HH:mm")</span>
+                @if (Model.PagoId.HasValue)
+                {
+                    <a asp-controller="Pagos" asp-action="Recibo" asp-route-id="@Model.PagoId.Value" class="ms-2">Ver recibo</a>
+                }
             }
             else
             {

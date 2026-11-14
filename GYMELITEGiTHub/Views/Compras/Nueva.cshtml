@@ -1,0 +1,171 @@
+@model GYMELITEGiTHub.ViewModels.CompraNuevaViewModel
+@{
+    ViewData["Title"] = "Nueva compra";
+}
+
+<h1 class="h3 mb-3">Nueva compra</h1>
+<p class="text-muted">Elige el proveedor y agrega una línea por producto. Al guardar, las unidades se suman al inventario.</p>
+
+<partial name="_ErroresGenerales" />
+
+@if (!Model.Proveedores.Any())
+{
+    <div class="alert alert-warning">
+        Primero registra un proveedor. <a asp-controller="Proveedores" asp-action="Crear">Nuevo proveedor</a>
+    </div>
+}
+else if (!Model.Productos.Any())
+{
+    <div class="alert alert-warning">
+        No hay productos activos para comprar. Registra o activa un producto en <a asp-controller="Productos" asp-action="Index">Productos</a>.
+    </div>
+}
+else
+{
+    <form asp-action="Nueva" method="post" class="bg-white border rounded p-4" style="max-width: 1000px;">
+        <div class="mb-4" style="max-width: 420px;">
+            <label asp-for="ProveedorId" class="form-label"></label>
+            <select asp-for="ProveedorId" asp-items="Model.Proveedores" class="form-select">
+                <option value="">-- Seleccione un proveedor --</option>
+            </select>
+            <span asp-validation-for="ProveedorId" class="text-danger"></span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle" id="tabla-lineas">
+                <thead>
+                    <tr>
+                        <th scope="col" style="min-width: 280px;">Producto</th>
+                        <th scope="col" style="width: 130px;">Cantidad</th>
+                        <th scope="col" style="width: 160px;">Costo unitario ($)</th>
+                        <th scope="col" class="text-end" style="width: 130px;">Subtotal</th>
+                        <th scope="col" style="width: 60px;"><span class="visually-hidden">Quitar</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for (var i = 0; i < Model.Lineas.Count; i++)
+                {
+                    <tr class="linea-compra">
+                        <td>
+                            <select asp-for="Lineas[i].ProductoId" asp-items="Model.Productos" class="form-select campo-producto">
+                                <option value="">-- Producto --</option>
+                            </select>
+                            <span asp-validation-for="Lineas[i].ProductoId" class="text-danger"></span>
+                        </td>
+                        <td>
+                            <input asp-for="Lineas[i].Cantidad" type="number" min="1" step="1" class="form-control campo-cantidad" />
+                            <span asp-validation-for="Lineas[i].Cantidad" class="text-danger"></span>
+                        </td>
+                        <td>
+                            <input asp-for="Lineas[i].CostoUnitario" type="number" min="0.01" step="0.01" class="form-control campo-costo" />
+                            <span asp-validation-for="Lineas[i].CostoUnitario" class="text-danger"></span>
+                        </td>
+                        <td class="text-end text-nowrap celda-subtotal">$0.00</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-outline-danger quitar-linea" aria-label="Quitar línea">✕</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <button type="button" class="btn btn-outline-success btn-sm" id="agregar-linea">+ Agregar producto</button>
+                        </td>
+                        <th class="text-end text-nowrap" id="total-compra">$0.00</th>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success">Registrar compra</button>
+        </div>
+    </form>
+
+    @* Plantilla de una línea nueva. __i__ se reemplaza por el índice al agregarla. *@
+    <template id="plantilla-linea">
+        <tr class="linea-compra">
+            <td>
+                <select name="Lineas[__i__].ProductoId" class="form-select campo-producto">
+                    <option value="">-- Producto --</option>
+                    @foreach (var p in Model.Productos)
+                    {
+                        <option value="@p.Value">@p.Text</option>
+                    }
+                </select>
+            </td>
+            <td><input name="Lineas[__i__].Cantidad" type="number" min="1" step="1" class="form-control campo-cantidad" /></td>
+            <td><input name="Lineas[__i__].CostoUnitario" type="number" min="0.01" step="0.01" class="form-control campo-costo" /></td>
+            <td class="text-end text-nowrap celda-subtotal">$0.00</td>
+            <td class="text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger quitar-linea" aria-label="Quitar línea">✕</button>
+            </td>
+        </tr>
+    </template>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const cuerpo = document.querySelector('#tabla-lineas tbody');
+            const plantilla = document.getElementById('plantilla-linea');
+            if (!cuerpo || !plantilla) return;
+
+            const formato = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Mantiene los nombres Lineas[0], Lineas[1]... seguidos para que el servidor los reciba todos.
+            function reindexar() {
+                cuerpo.querySelectorAll('tr.linea-compra').forEach((fila, i) => {
+                    fila.querySelectorAll('[name^="Lineas["]').forEach(campo => {
+                        campo.name = campo.name.replace(/Lineas\[[^\]]+\]/, 'Lineas[' + i + ']');
+                        if (campo.id) campo.id = campo.id.replace(/Lineas_[^_]+__/, 'Lineas_' + i + '__');
+                    });
+                    fila.querySelectorAll('[data-valmsg-for^="Lineas["]').forEach(msg => {
+                        msg.setAttribute('data-valmsg-for',
+                            msg.getAttribute('data-valmsg-for').replace(/Lineas\[[^\]]+\]/, 'Lineas[' + i + ']'));
+                    });
+                });
+            }
+
+            function recalcular() {
+                let total = 0;
+                cuerpo.querySelectorAll('tr.linea-compra').forEach(fila => {
+                    const cantidad = parseFloat(fila.querySelector('.campo-cantidad').value) || 0;
+                    const costo = parseFloat(fila.querySelector('.campo-costo').value) || 0;
+                    const subtotal = cantidad * costo;
+                    fila.querySelector('.celda-subtotal').textContent = formato(subtotal);
+                    total += subtotal;
+                });
+                document.getElementById('total-compra').textContent = formato(total);
+            }
+
+            document.getElementById('agregar-linea').addEventListener('click', () => {
+                const indice = cuerpo.querySelectorAll('tr.linea-compra').length;
+                const html = plantilla.innerHTML.replace(/__i__/g, indice);
+                cuerpo.insertAdjacentHTML('beforeend', html);
+                recalcular();
+            });
+
+            cuerpo.addEventListener('click', e => {
+                const boton = e.target.closest('.quitar-linea');
+                if (!boton) return;
+                const filas = cuerpo.querySelectorAll('tr.linea-compra');
+                if (filas.length === 1) {
+                    // Siempre queda una línea: se limpia en lugar de borrarla.
+                    filas[0].querySelectorAll('input, select').forEach(c => c.value = '');
+                } else {
+                    boton.closest('tr').remove();
+                    reindexar();
+                }
+                recalcular();
+            });
+
+            cuerpo.addEventListener('input', recalcular);
+            recalcular();
+        })();
+    </script>
+}
