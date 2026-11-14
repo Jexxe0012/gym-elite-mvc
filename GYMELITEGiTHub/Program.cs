@@ -26,6 +26,13 @@ builder.Services.AddScoped<IPagoRepository, PagoRepository>();
 builder.Services.AddScoped<IMembresiaService, MembresiaService>();
 builder.Services.AddScoped<ITipoMembresiaService, TipoMembresiaService>();
 
+// Productos, inventario y ventas
+builder.Services.AddScoped<IProductoRepository, ProductoRepository>();
+builder.Services.AddScoped<IVentaRepository, VentaRepository>();
+builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
+
 // Cada módulo nuevo agrega aquí sus propias líneas, por ejemplo:
 // builder.Services.AddScoped<IProductoService, ProductoService>();
 

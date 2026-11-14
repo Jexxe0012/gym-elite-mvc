@@ -1,0 +1,12 @@
+@model GYMELITEGiTHub.ViewModels.ProductoEditViewModel
+@{ ViewData["Title"] = "Editar producto"; }
+<h1 class="h3">Editar producto @Model.Codigo</h1>
+<form asp-action="Editar" method="post" class="card"><input asp-for="Id" type="hidden"/><input asp-for="Codigo" type="hidden"/><div class="card-body">
+ <partial name="_ErroresGenerales"/><div class="row g-3">
+ <div class="col-md-6"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control"/><span asp-validation-for="Nombre" class="text-danger"></span></div>
+ <div class="col-md-6"><label asp-for="Categoria" class="form-label"></label><select asp-for="Categoria" class="form-select">@foreach(var c in GYMELITEGiTHub.ViewModels.ProductoCreateViewModel.Categorias){<option>@c</option>}</select></div>
+ <div class="col-md-6"><label asp-for="PrecioVenta" class="form-label"></label><input asp-for="PrecioVenta" class="form-control"/><span asp-validation-for="PrecioVenta" class="text-danger"></span></div>
+ <div class="col-md-6"><label asp-for="StockMinimo" class="form-label"></label><input asp-for="StockMinimo" class="form-control"/><span asp-validation-for="StockMinimo" class="text-danger"></span></div>
+ <div class="col-12 form-check ms-2"><input asp-for="Activo" class="form-check-input"/><label asp-for="Activo" class="form-check-label"></label></div>
+ </div></div><div class="card-footer"><button class="btn btn-success">Guardar cambios</button> <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a></div></form>
+@section Scripts { <partial name="_ValidationScriptsPartial"/> }

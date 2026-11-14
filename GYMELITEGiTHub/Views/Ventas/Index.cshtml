@@ -1,6 +1,7 @@
-﻿namespace GYMELITEGiTHub.Views.Ventas
-{
-    public class Index
-    {
-    }
-}
+@model GYMELITEGiTHub.ViewModels.VentaListaViewModel
+@{ ViewData["Title"] = "Ventas"; }
+<div class="d-flex justify-content-between mb-3"><div><h1 class="h3 mb-0">Ventas</h1><small class="text-muted">Historial de ventas de productos.</small></div><a asp-action="Nueva" class="btn btn-success">+ Nueva venta</a></div>
+@if(TempData["Exito"] is string exito){<div class="alert alert-success">@exito</div>}
+<form method="get" class="row g-2 mb-3"><div class="col-md-5"><label asp-for="Desde" class="form-label"></label><input asp-for="Desde" class="form-control"/></div><div class="col-md-5"><label asp-for="Hasta" class="form-label"></label><input asp-for="Hasta" class="form-control"/></div><div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-secondary w-100">Filtrar</button></div></form>
+<div class="table-responsive bg-white border rounded"><table class="table table-hover mb-0"><thead><tr><th>Número</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th></tr></thead><tbody>@foreach(var v in Model.Ventas){<tr><td>@v.Numero</td><td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td><td>@v.Total.ToString("C")</td><td><span class="badge @(v.Estado == "Registrada" ? "bg-success" : "bg-danger")">@v.Estado</span></td><td class="text-end"><a asp-action="Comprobante" asp-route-id="@v.Id">Ver comprobante</a></td></tr>}</tbody></table></div>
+@if(!Model.Ventas.Any()){<div class="alert alert-light border mt-3">No hay ventas en el período seleccionado.</div>}
