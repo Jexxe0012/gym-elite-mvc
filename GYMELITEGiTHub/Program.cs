@@ -28,9 +28,10 @@ builder.Services.AddScoped<ITipoMembresiaService, TipoMembresiaService>();
 builder.Services.AddScoped<IPagoService, PagoService>();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
-
-// Cada módulo nuevo agrega aquí sus propias líneas, por ejemplo:
-// builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
+builder.Services.AddScoped<IProveedorService, ProveedorService>();
+builder.Services.AddScoped<ICompraRepository, CompraRepository>();
+builder.Services.AddScoped<ICompraService, CompraService>();
 
 var app = builder.Build();
 
