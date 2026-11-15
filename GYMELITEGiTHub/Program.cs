@@ -27,7 +27,7 @@ builder.Services.AddScoped<IVentaRepository, VentaRepository>();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 builder.Services.AddScoped<IProveedorRepository, ProveedorRepository>();
 builder.Services.AddScoped<ICompraRepository, CompraRepository>();
-
+builder.Services.AddScoped<IAccesoRepository, AccesoRepository>();
 // Servicios
 builder.Services.AddScoped<ISocioService, SocioService>();
 builder.Services.AddScoped<IMembresiaService, MembresiaService>();
@@ -39,7 +39,7 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IProveedorService, ProveedorService>();
 builder.Services.AddScoped<ICompraService, CompraService>();
-
+builder.Services.AddScoped<IAccesoService, AccesoService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
