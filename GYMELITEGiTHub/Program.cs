@@ -1,3 +1,4 @@
+using GYMELITEGiTHub.Controllers.Api;
 using GYMELITEGiTHub.Data;
 using GYMELITEGiTHub.Repositories.Implementations;
 using GYMELITEGiTHub.Repositories.Interfaces;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AgregarPoliticasApi();
 
 // Base de datos
 builder.Services.AddDbContext<GymEliteDbContext>(options =>
@@ -53,8 +55,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UsarRespuestasApi();
+app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
