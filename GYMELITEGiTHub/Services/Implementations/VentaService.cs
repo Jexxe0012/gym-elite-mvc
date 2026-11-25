@@ -43,19 +43,24 @@ public class VentaService : IVentaService
     {
         var solicitadas = modelo.Lineas.Where(l => l.Cantidad > 0).ToList();
         if (solicitadas.Count == 0)
-            throw new InvalidOperationException("Seleccione al menos un producto e indique una cantidad mayor que cero.");
+            throw new ReglaNegocioException("Seleccione al menos un producto e indique una cantidad mayor que cero.", TipoRechazo.DatoInvalido);
 
         var productos = new List<(Producto Producto, int Cantidad)>();
         foreach (var linea in solicitadas)
         {
             var producto = await _productos.GetByIdAsync(linea.ProductoId)
-                ?? throw new InvalidOperationException("Uno de los productos seleccionados ya no existe.");
+                ?? throw new ReglaNegocioException("Uno de los productos seleccionados ya no existe.", TipoRechazo.ReferenciaInexistente);
             if (!producto.Activo)
-                throw new InvalidOperationException($"El producto {producto.Nombre} está inactivo.");
+                throw new ReglaNegocioException($"El producto {producto.Nombre} está inactivo.");
             if (producto.Existencias < linea.Cantidad)
-                throw new InvalidOperationException($"Existencias insuficientes para {producto.Nombre}. Disponibles: {producto.Existencias}.");
+                throw new ReglaNegocioException($"Existencias insuficientes para {producto.Nombre}. Disponibles: {producto.Existencias}.");
             productos.Add((producto, linea.Cantidad));
         }
+
+        var total = productos.Sum(x => x.Producto.PrecioVenta * x.Cantidad);
+        if (total > 99999999.99m)
+            throw new ReglaNegocioException("El total de la venta supera el importe máximo admitido.",
+                TipoRechazo.DatoInvalido);
 
         await _unitOfWork.BeginTransactionAsync();
         try
@@ -65,7 +70,7 @@ public class VentaService : IVentaService
                 Fecha = DateTime.Now,
                 Estado = EstadosNegocio.VentaRegistrada,
                 UsuarioResponsableId = "sistema",
-                Total = productos.Sum(x => x.Producto.PrecioVenta * x.Cantidad)
+                Total = total
             };
             await _ventas.AddAsync(venta);
             await _unitOfWork.SaveChangesAsync();
@@ -105,7 +110,7 @@ public class VentaService : IVentaService
         var venta = await _ventas.GetConDetallesAsync(id);
         if (venta is null) return false;
         if (venta.Estado == EstadosNegocio.VentaAnulada)
-            throw new InvalidOperationException("La venta ya fue anulada.");
+            throw new ReglaNegocioException("La venta ya fue anulada.");
 
         await _unitOfWork.BeginTransactionAsync();
         try

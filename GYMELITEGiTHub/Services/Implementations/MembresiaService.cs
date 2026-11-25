@@ -65,23 +65,26 @@ public class MembresiaService : IMembresiaService
     public async Task<MembresiaDto> CreateAsync(MembresiaCreateViewModel modelo)
     {
         var socio = await _socios.GetByIdAsync(modelo.SocioId!.Value)
-            ?? throw new InvalidOperationException("El socio seleccionado no existe.");
+            ?? throw new ReglaNegocioException("El socio seleccionado no existe.", TipoRechazo.ReferenciaInexistente);
 
         if (!socio.EstaHabilitado)
-            throw new InvalidOperationException("La ficha del socio está desactivada.");
+            throw new ReglaNegocioException("La ficha del socio está desactivada.");
 
         var tipo = await _tipos.GetByIdAsync(modelo.TipoMembresiaId!.Value)
-            ?? throw new InvalidOperationException("El plan seleccionado no existe.");
+            ?? throw new ReglaNegocioException("El plan seleccionado no existe.", TipoRechazo.ReferenciaInexistente);
 
         if (!tipo.Activo)
-            throw new InvalidOperationException("El plan seleccionado no está activo.");
+            throw new ReglaNegocioException("El plan seleccionado no está activo.");
 
         var inicio = modelo.FechaInicio!.Value;
         // La fecha final es inclusiva: un plan de 30 días que inicia el 1 vence el 30.
-        var fin = inicio.AddDays(tipo.DuracionDias * modelo.PeriodosAdquiridos - 1);
+        var dias = tipo.DuracionDias * modelo.PeriodosAdquiridos - 1;
+        if (inicio.DayNumber > DateOnly.MaxValue.DayNumber - dias)
+            throw new ReglaNegocioException("La fecha final queda fuera del rango admitido.", TipoRechazo.DatoInvalido);
+        var fin = inicio.AddDays(dias);
 
         if (await _membresias.ExisteTraslapeAsync(socio.Id, inicio, fin))
-            throw new InvalidOperationException(
+            throw new ReglaNegocioException(
                 "El socio ya tiene una membresía que cubre ese período. " +
                 "Cancele la anterior o renueve a partir de la fecha siguiente a su vencimiento.");
 
@@ -122,10 +125,10 @@ public class MembresiaService : IMembresiaService
         if (membresia is null) return null;
 
         if (membresia.Estado == EstadosNegocio.MembresiaCancelada)
-            throw new InvalidOperationException("La membresía ya está cancelada.");
+            throw new ReglaNegocioException("La membresía ya está cancelada.");
 
         if (membresia.Accesos.Any())
-            throw new InvalidOperationException(
+            throw new ReglaNegocioException(
                 "La membresía ya tiene ingresos registrados y no puede cancelarse.");
 
         // El pago anulado se conserva para el historial; no se borra nada.
@@ -160,9 +163,11 @@ public class MembresiaService : IMembresiaService
         if (socio is null) return null;
 
         if (!socio.EstaHabilitado)
-            throw new InvalidOperationException("La ficha del socio está desactivada.");
+            throw new ReglaNegocioException("La ficha del socio está desactivada.");
 
         var ultima = await _membresias.GetUltimaDeSocioAsync(socioId);
+        if (ultima?.FechaFin == DateOnly.MaxValue)
+            throw new ReglaNegocioException("La última membresía ya termina en la fecha máxima admitida.");
         var hoy = Hoy;
 
         var modelo = new MembresiaCreateViewModel

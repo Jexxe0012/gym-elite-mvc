@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace GYMELITEGiTHub.Models;
 
 public class Venta
@@ -5,6 +7,8 @@ public class Venta
     public int Id { get; set; }
     public DateTime Fecha { get; set; }
     public decimal Total { get; set; }
+
+    [ConcurrencyCheck]
     public string Estado { get; set; } = "Registrada";
     public string UsuarioResponsableId { get; set; } = string.Empty;
 

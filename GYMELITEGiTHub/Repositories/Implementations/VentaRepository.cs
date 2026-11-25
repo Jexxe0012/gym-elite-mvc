@@ -13,7 +13,11 @@ public class VentaRepository : Repository<Venta>, IVentaRepository
     {
         var consulta = _dbSet.AsNoTracking().AsQueryable();
         if (desde.HasValue) consulta = consulta.Where(v => v.Fecha >= desde.Value.Date);
-        if (hasta.HasValue) consulta = consulta.Where(v => v.Fecha < hasta.Value.Date.AddDays(1));
+        if (hasta.HasValue && hasta.Value.Date < DateTime.MaxValue.Date)
+        {
+            var finExclusivo = hasta.Value.Date.AddDays(1);
+            consulta = consulta.Where(v => v.Fecha < finExclusivo);
+        }
         return await consulta.OrderByDescending(v => v.Fecha).ToListAsync();
     }
 

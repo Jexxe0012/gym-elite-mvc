@@ -20,6 +20,7 @@ public interface IAccesoService
     /// </summary>
     Task<AccesoDto> RegistrarIngresoAsync(int socioId);
 
+    Task<AccesoDto?> GetByIdAsync(int id);
     Task<List<AccesoDto>> GetRecientesAsync(int cantidad = 8);
     Task<AccesoHistorialViewModel> ObtenerHistorialAsync(AccesoHistorialViewModel filtros);
 }

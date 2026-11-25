@@ -67,12 +67,16 @@ public class TipoMembresiaService : ITipoMembresiaService
         return true;
     }
 
-    public async Task<TipoMembresiaDto?> CambiarEstadoAsync(int id)
+    public Task<TipoMembresiaDto?> CambiarEstadoAsync(int id) => CambiarEstadoAsync(id, null);
+
+    public async Task<bool> DesactivarAsync(int id) => await CambiarEstadoAsync(id, false) is not null;
+
+    private async Task<TipoMembresiaDto?> CambiarEstadoAsync(int id, bool? activo)
     {
         var tipo = await _tipos.GetByIdAsync(id);
         if (tipo is null) return null;
 
-        tipo.Activo = !tipo.Activo;
+        tipo.Activo = activo ?? !tipo.Activo;
         await _unitOfWork.SaveChangesAsync();
         return ADto(tipo);
     }
@@ -82,10 +86,10 @@ public class TipoMembresiaService : ITipoMembresiaService
         var nombre = modelo.Nombre.Trim();
 
         if (await _tipos.AnyAsync(t => t.Nombre == nombre && t.Id != modelo.Id))
-            throw new InvalidOperationException("Ya existe un plan con ese nombre.");
+            throw new ReglaNegocioException("Ya existe un plan con ese nombre.");
 
         if (modelo.Modalidad == "Pase diario" && modelo.DuracionDias != 1)
-            throw new InvalidOperationException("Un pase diario debe durar exactamente 1 día.");
+            throw new ReglaNegocioException("Un pase diario debe durar exactamente 1 día.", TipoRechazo.DatoInvalido);
     }
 
     private static TipoMembresiaDto ADto(TipoMembresia t) => new()
