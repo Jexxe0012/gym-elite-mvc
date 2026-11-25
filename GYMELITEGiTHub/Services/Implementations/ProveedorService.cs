@@ -39,7 +39,7 @@ public class ProveedorService : IProveedorService
         var nombre = NormalizarNombre(modelo.Nombre);
 
         if (await _proveedores.ExisteNombreAsync(nombre))
-            throw new InvalidOperationException($"Ya existe un proveedor llamado \"{nombre}\".");
+            throw new ReglaNegocioException($"Ya existe un proveedor llamado \"{nombre}\".");
 
         var proveedor = new Proveedor
         {
@@ -61,7 +61,7 @@ public class ProveedorService : IProveedorService
         var nombre = NormalizarNombre(modelo.Nombre);
 
         if (await _proveedores.ExisteNombreAsync(nombre, excluirId: proveedor.Id))
-            throw new InvalidOperationException($"Ya existe otro proveedor llamado \"{nombre}\".");
+            throw new ReglaNegocioException($"Ya existe otro proveedor llamado \"{nombre}\".");
 
         proveedor.Nombre = nombre;
         proveedor.Telefono = modelo.Telefono.Trim();
@@ -77,7 +77,7 @@ public class ProveedorService : IProveedorService
         if (proveedor is null) return false;
 
         if (await _proveedores.TieneComprasAsync(id))
-            throw new InvalidOperationException(
+            throw new ReglaNegocioException(
                 $"No se puede eliminar a {proveedor.Nombre} porque tiene compras registradas. " +
                 "Las compras se conservan como historial.");
 

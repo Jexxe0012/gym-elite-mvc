@@ -42,11 +42,11 @@ public class CompraService : ICompraService
     {
         if (filtros.FechaDesde.HasValue && filtros.FechaHasta.HasValue &&
             filtros.FechaDesde.Value > filtros.FechaHasta.Value)
-            throw new InvalidOperationException("La fecha inicial no puede ser posterior a la final.");
+            throw new ReglaNegocioException("La fecha inicial no puede ser posterior a la final.", TipoRechazo.DatoInvalido);
 
         if (!string.IsNullOrWhiteSpace(filtros.Estado) &&
             filtros.Estado != EstadosNegocio.CompraRegistrada && filtros.Estado != EstadosNegocio.CompraAnulada)
-            throw new InvalidOperationException("Seleccione un estado de compra válido.");
+            throw new ReglaNegocioException("Seleccione un estado de compra válido.", TipoRechazo.DatoInvalido);
 
         var compras = await _compras.BuscarAsync(filtros.ProveedorId, filtros.Estado, filtros.FechaDesde, filtros.FechaHasta);
 
@@ -95,33 +95,33 @@ public class CompraService : ICompraService
     {
         // 1. Validar todo antes de modificar nada.
         if (modelo.ProveedorId is null or <= 0)
-            throw new InvalidOperationException("Seleccione un proveedor.");
+            throw new ReglaNegocioException("Seleccione un proveedor.", TipoRechazo.DatoInvalido);
 
         var proveedor = await _proveedores.GetByIdAsync(modelo.ProveedorId.Value)
-            ?? throw new InvalidOperationException("El proveedor seleccionado no existe.");
+            ?? throw new ReglaNegocioException("El proveedor seleccionado no existe.", TipoRechazo.ReferenciaInexistente);
 
         var lineas = modelo.Lineas.Where(l => !l.EstaVacia).ToList();
         if (lineas.Count == 0)
-            throw new InvalidOperationException("Agregue al menos una línea con producto, cantidad y costo.");
+            throw new ReglaNegocioException("Agregue al menos una línea con producto, cantidad y costo.", TipoRechazo.DatoInvalido);
 
         if (lineas.Where(l => l.ProductoId > 0).GroupBy(l => l.ProductoId).Any(g => g.Count() > 1))
-            throw new InvalidOperationException("Un producto aparece en más de una línea. Combine las cantidades en una sola línea.");
+            throw new ReglaNegocioException("Un producto aparece en más de una línea. Combine las cantidades en una sola línea.", TipoRechazo.DatoInvalido);
 
         var detalles = new List<DetalleCompra>();
         foreach (var (linea, numero) in lineas.Select((l, i) => (l, i + 1)))
         {
             if (linea.ProductoId is null or <= 0)
-                throw new InvalidOperationException($"Línea {numero}: seleccione un producto.");
+                throw new ReglaNegocioException($"Línea {numero}: seleccione un producto.", TipoRechazo.DatoInvalido);
             if (linea.Cantidad is null or <= 0)
-                throw new InvalidOperationException($"Línea {numero}: la cantidad debe ser mayor que cero.");
+                throw new ReglaNegocioException($"Línea {numero}: la cantidad debe ser mayor que cero.", TipoRechazo.DatoInvalido);
             if (linea.CostoUnitario is null or <= 0m)
-                throw new InvalidOperationException($"Línea {numero}: el costo unitario debe ser mayor que cero.");
+                throw new ReglaNegocioException($"Línea {numero}: el costo unitario debe ser mayor que cero.", TipoRechazo.DatoInvalido);
 
             var producto = await _productos.GetByIdAsync(linea.ProductoId.Value)
-                ?? throw new InvalidOperationException($"Línea {numero}: el producto seleccionado no existe.");
+                ?? throw new ReglaNegocioException($"Línea {numero}: el producto seleccionado no existe.", TipoRechazo.ReferenciaInexistente);
 
             if (!producto.Activo)
-                throw new InvalidOperationException($"Línea {numero}: el producto {producto.Nombre} está inactivo.");
+                throw new ReglaNegocioException($"Línea {numero}: el producto {producto.Nombre} está inactivo.");
 
             detalles.Add(new DetalleCompra
             {
@@ -175,9 +175,9 @@ public class CompraService : ICompraService
         if (compra is null) return false;
 
         if (compra.Estado == EstadosNegocio.CompraAnulada)
-            throw new InvalidOperationException("La compra ya está anulada.");
+            throw new ReglaNegocioException("La compra ya está anulada.");
         if (compra.Estado != EstadosNegocio.CompraRegistrada)
-            throw new InvalidOperationException("Solo se puede anular una compra registrada.");
+            throw new ReglaNegocioException("Solo se puede anular una compra registrada.");
 
         // Revisar primero que revertir las entradas no deje existencias negativas
         // (por ejemplo, si ya se vendió parte de lo comprado).
@@ -189,10 +189,10 @@ public class CompraService : ICompraService
         foreach (var item in porProducto)
         {
             var producto = await _productos.GetByIdAsync(item.ProductoId)
-                ?? throw new InvalidOperationException("Uno de los productos de la compra ya no existe.");
+                ?? throw new ReglaNegocioException("Uno de los productos de la compra ya no existe.", TipoRechazo.ReferenciaInexistente);
 
             if (producto.Existencias < item.Cantidad)
-                throw new InvalidOperationException(
+                throw new ReglaNegocioException(
                     $"No se puede anular: de {producto.Nombre} quedan {producto.Existencias} unidad(es) " +
                     $"y la compra ingresó {item.Cantidad}. Parte de lo comprado ya salió del inventario.");
         }

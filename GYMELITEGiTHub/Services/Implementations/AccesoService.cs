@@ -54,9 +54,9 @@ public class AccesoService : IAccesoService
         var termino = (busqueda ?? string.Empty).Trim();
 
         if (termino.Length == 0)
-            throw new InvalidOperationException("Escanee un código QR o escriba un código, nombre o teléfono.");
+            throw new ReglaNegocioException("Escanee un código QR o escriba un código, nombre o teléfono.", TipoRechazo.DatoInvalido);
         if (termino.Length > 100)
-            throw new InvalidOperationException("La búsqueda no puede superar 100 caracteres.");
+            throw new ReglaNegocioException("La búsqueda no puede superar 100 caracteres.", TipoRechazo.DatoInvalido);
 
         var verificacion = new VerificacionAccesoDto { Busqueda = termino };
         var esQr = Guid.TryParse(termino, out var codigoQr);
@@ -107,16 +107,16 @@ public class AccesoService : IAccesoService
     public async Task<AccesoDto> RegistrarIngresoAsync(int socioId)
     {
         var socio = await _socios.GetByIdAsync(socioId)
-            ?? throw new InvalidOperationException("El socio seleccionado no existe.");
+            ?? throw new ReglaNegocioException("El socio seleccionado no existe.", TipoRechazo.ReferenciaInexistente);
 
         // La cobertura se vuelve a calcular aquí: no se confía en lo que mostró la pantalla.
         var (vigente, _, motivo) = await EvaluarCoberturaAsync(socio);
         if (vigente is null)
-            throw new InvalidOperationException($"No se registró el ingreso. {motivo}");
+            throw new ReglaNegocioException($"No se registró el ingreso. {motivo}");
 
         var desde = DateTime.Now - VentanaDobleRegistro;
         if (await _accesos.ExisteIngresoRecienteAsync(vigente.Id, desde))
-            throw new InvalidOperationException("El ingreso de este socio ya fue registrado hace un momento.");
+            throw new ReglaNegocioException("El ingreso de este socio ya fue registrado hace un momento.");
 
         var acceso = new Acceso
         {
@@ -141,6 +141,9 @@ public class AccesoService : IAccesoService
         };
     }
 
+    public async Task<AccesoDto?> GetByIdAsync(int id) =>
+        await _accesos.GetConDetalleAsync(id) is { } acceso ? ADto(acceso) : null;
+
     public async Task<List<AccesoDto>> GetRecientesAsync(int cantidad = 8)
     {
         var accesos = await _accesos.GetRecientesAsync(cantidad);
@@ -151,7 +154,7 @@ public class AccesoService : IAccesoService
     {
         if (filtros.FechaDesde.HasValue && filtros.FechaHasta.HasValue &&
             filtros.FechaDesde.Value > filtros.FechaHasta.Value)
-            throw new InvalidOperationException("La fecha inicial no puede ser posterior a la final.");
+            throw new ReglaNegocioException("La fecha inicial no puede ser posterior a la final.", TipoRechazo.DatoInvalido);
 
         var accesos = await _accesos.BuscarAsync(
             filtros.Busqueda, filtros.FechaDesde, filtros.FechaHasta, AccesoHistorialViewModel.LimiteRegistros);

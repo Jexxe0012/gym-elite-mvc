@@ -16,6 +16,8 @@ public class Producto
     public string Categoria { get; set; } = string.Empty;
 
     public decimal PrecioVenta { get; set; }
+
+    [ConcurrencyCheck]
     public int Existencias { get; set; }
     public int StockMinimo { get; set; }
     public bool Activo { get; set; } = true;

@@ -55,6 +55,7 @@ namespace GYMELITEGiTHub.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Estado")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -272,6 +273,7 @@ namespace GYMELITEGiTHub.Migrations
                         .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("Existencias")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.Property<string>("Nombre")
@@ -449,6 +451,7 @@ namespace GYMELITEGiTHub.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Estado")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

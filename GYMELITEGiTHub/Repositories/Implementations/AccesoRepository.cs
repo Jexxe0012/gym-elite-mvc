@@ -33,7 +33,7 @@ public class AccesoRepository : Repository<Acceso>, IAccesoRepository
             consulta = consulta.Where(a => a.FechaHoraIngreso >= inicio);
         }
 
-        if (hasta.HasValue)
+        if (hasta.HasValue && hasta.Value < DateOnly.MaxValue)
         {
             // Hasta el final del día indicado: se compara contra el inicio del día siguiente.
             var finExclusivo = hasta.Value.AddDays(1).ToDateTime(TimeOnly.MinValue);
@@ -46,6 +46,8 @@ public class AccesoRepository : Repository<Acceso>, IAccesoRepository
             .Take(limite)
             .ToListAsync();
     }
+
+    public Task<Acceso?> GetConDetalleAsync(int id) => ConDetalle().FirstOrDefaultAsync(a => a.Id == id);
 
     public async Task<List<Acceso>> GetRecientesAsync(int cantidad) =>
         await ConDetalle()

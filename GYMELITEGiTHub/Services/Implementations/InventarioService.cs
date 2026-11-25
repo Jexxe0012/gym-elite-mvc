@@ -26,14 +26,17 @@ public class InventarioService : IInventarioService
     private async Task RegistrarAsync(int productoId, int cantidad, string motivo,
         string operacionOrigen, int? operacionOrigenId, bool entrada)
     {
-        if (cantidad <= 0) throw new InvalidOperationException("La cantidad debe ser mayor que cero.");
-        if (string.IsNullOrWhiteSpace(motivo)) throw new InvalidOperationException("El motivo es obligatorio.");
+        if (cantidad <= 0) throw new ReglaNegocioException("La cantidad debe ser mayor que cero.", TipoRechazo.DatoInvalido);
+        if (string.IsNullOrWhiteSpace(motivo)) throw new ReglaNegocioException("El motivo es obligatorio.", TipoRechazo.DatoInvalido);
 
         var producto = await _productos.GetByIdAsync(productoId)
-            ?? throw new InvalidOperationException("El producto indicado no existe.");
+            ?? throw new ReglaNegocioException("El producto indicado no existe.", TipoRechazo.ReferenciaInexistente);
 
         if (!entrada && producto.Existencias < cantidad)
-            throw new InvalidOperationException($"Existencias insuficientes para {producto.Nombre}. Disponibles: {producto.Existencias}.");
+            throw new ReglaNegocioException($"Existencias insuficientes para {producto.Nombre}. Disponibles: {producto.Existencias}.");
+
+        if (entrada && producto.Existencias > int.MaxValue - cantidad)
+            throw new ReglaNegocioException("La entrada excede el máximo de existencias admitido.");
 
         producto.Existencias += entrada ? cantidad : -cantidad;
         await _movimientos.AddAsync(new MovimientoInventario
