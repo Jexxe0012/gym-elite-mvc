@@ -1,5 +1,7 @@
 # GYM ELITE — Base MVC
 
+Para la integración de la etapa 4, consulta el [contrato de la API REST](docs/api-fase4.md).
+
 Proyecto universitario de gestión de gimnasio para la asignatura Desarrollo de Aplicaciones con Software Propietario, Universidad Don Bosco.
 
 Este repositorio comienza desde la plantilla `GYMELITEGiTHub` entregada por un integrante del equipo. El código de la plantilla se conserva como punto de partida; se agregan este README y un `.gitignore` para el trabajo compartido.
