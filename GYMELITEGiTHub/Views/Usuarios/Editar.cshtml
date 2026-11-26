@@ -1,0 +1,28 @@
+﻿@model GYMELITEGiTHub.ViewModels.UsuarioEditarViewModel
+@{
+    ViewData["Title"] = "Cambiar rol";
+}
+
+<h1 class="h3 mb-3">Cambiar rol</h1>
+<p class="text-muted">Usuario: <strong>@Model.Correo</strong></p>
+
+<partial name="_ErroresGenerales" />
+
+<form asp-action="Editar" method="post" class="bg-white border rounded p-4" style="max-width: 640px;">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="Rol" class="form-label"></label>
+        <select asp-for="Rol" asp-items="Model.Roles" class="form-select">
+            <option value="">Seleccione un rol</option>
+        </select>
+        <span asp-validation-for="Rol" class="text-danger"></span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-success">Guardar rol</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,9 +1,12 @@
 using GYMELITEGiTHub.Models;
+using GYMELITEGiTHub.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace GYMELITEGiTHub.Controllers
 {
+    [Authorize(Roles = RolesSistema.Todos)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -23,6 +26,7 @@ namespace GYMELITEGiTHub.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
