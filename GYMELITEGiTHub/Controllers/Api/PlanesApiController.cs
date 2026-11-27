@@ -19,7 +19,7 @@ public sealed class PlanesApiController(ITipoMembresiaService planes) : ApiContr
 
     [HttpPost]
     [ProducesResponseType<TipoMembresiaDto>(StatusCodes.Status201Created)]
-    [Authorize(Policy = ApiConfiguracion.Administracion)]
+    [Authorize(Policy = ApiConfiguracion.Recepcion)]
     public async Task<ActionResult<TipoMembresiaDto>> Crear(PlanEntrada entrada)
     {
         var plan = await planes.CreateAsync(entrada.AModelo(0, true));
@@ -27,12 +27,12 @@ public sealed class PlanesApiController(ITipoMembresiaService planes) : ApiContr
     }
 
     [HttpPut("{id:int:min(1)}")]
-    [Authorize(Policy = ApiConfiguracion.Administracion)]
+    [Authorize(Policy = ApiConfiguracion.Recepcion)]
     public async Task<IActionResult> Actualizar(int id, PlanActualizacion entrada) =>
         SinContenidoSiExiste(await planes.UpdateAsync(entrada.AModelo(id, entrada.Activo!.Value)));
 
     [HttpDelete("{id:int:min(1)}")]
-    [Authorize(Policy = ApiConfiguracion.Administracion)]
+    [Authorize(Policy = ApiConfiguracion.Recepcion)]
     public async Task<IActionResult> Desactivar(int id) =>
         SinContenidoSiExiste(await planes.DesactivarAsync(id));
 }

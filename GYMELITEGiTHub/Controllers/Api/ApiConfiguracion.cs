@@ -15,8 +15,8 @@ public static class ApiConfiguracion
         services.AddAuthentication();
         services.AddAuthorization(options =>
         {
-            options.AddPolicy(Recepcion, policy => policy.RequireRole("Administrador", "Recepcion"));
-            options.AddPolicy(Inventario, policy => policy.RequireRole("Administrador", "Inventario"));
+            options.AddPolicy(Recepcion, policy => policy.RequireRole("Administrador", "Recepcion", "Inventario"));
+            options.AddPolicy(Inventario, policy => policy.RequireRole("Administrador", "Recepcion", "Inventario"));
             options.AddPolicy(Administracion, policy => policy.RequireRole("Administrador"));
         });
         services.AddProblemDetails();

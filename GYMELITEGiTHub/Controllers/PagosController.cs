@@ -1,10 +1,13 @@
 ﻿
 using GYMELITEGiTHub.Services.Interfaces;
 using GYMELITEGiTHub.ViewModels;
+using GYMELITEGiTHub.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GYMELITEGiTHub.Controllers;
 
+[Authorize(Roles = RolesSistema.Todos)]
 public class PagosController : Controller
 {
     private readonly IPagoService _pagos;

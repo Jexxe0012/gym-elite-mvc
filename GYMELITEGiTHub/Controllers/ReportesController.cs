@@ -1,10 +1,13 @@
 ﻿
 using GYMELITEGiTHub.Services.Interfaces;
 using GYMELITEGiTHub.ViewModels;
+using GYMELITEGiTHub.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 namespace GYMELITEGiTHub.Controllers;
 
+[Authorize(Roles = RolesSistema.Administrador)]
 public class ReportesController : Controller
 {
     private readonly IReporteService _reportes;

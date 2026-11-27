@@ -1,9 +1,12 @@
 using GYMELITEGiTHub.Services.Interfaces;
 using GYMELITEGiTHub.ViewModels;
+using GYMELITEGiTHub.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GYMELITEGiTHub.Controllers;
 
+[Authorize(Roles = RolesSistema.Todos)]
 public class ProductosController : Controller
 {
     private readonly IProductoService _productos;
@@ -12,6 +15,11 @@ public class ProductosController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(string? busqueda, string? categoria) =>
         View(await _productos.GetListaAsync(busqueda, categoria));
+
+    [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Filtrar(string? busqueda, string? categoria) =>
+        Json(await _productos.GetListaAsync(busqueda, categoria));
 
     [HttpGet]
     public IActionResult Crear() => View(new ProductoCreateViewModel());

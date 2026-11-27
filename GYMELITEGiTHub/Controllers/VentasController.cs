@@ -1,9 +1,12 @@
 using GYMELITEGiTHub.Services.Interfaces;
 using GYMELITEGiTHub.ViewModels;
+using GYMELITEGiTHub.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GYMELITEGiTHub.Controllers;
 
+[Authorize(Roles = RolesSistema.Todos)]
 public class VentasController : Controller
 {
     private readonly IVentaService _ventas;
@@ -21,15 +24,24 @@ public class VentasController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Nueva(VentaNuevaViewModel modelo)
     {
-        if (!ModelState.IsValid) return View(await ReconstruirAsync(modelo));
+        var solicitaJson = Request.Headers.Accept.ToString() == "application/json";
+        if (!ModelState.IsValid)
+        {
+            if (solicitaJson) return BadRequest(new { mensaje = "Revisa las cantidades ingresadas." });
+            return View(await ReconstruirAsync(modelo));
+        }
         try
         {
             var venta = await _ventas.RegistrarAsync(modelo);
+            if (solicitaJson)
+                return Json(new { venta.Numero, venta.Total, comprobante = Url.Action(nameof(Comprobante), new { id = venta.Id }) });
+
             TempData["Exito"] = $"Venta {venta.Numero} registrada correctamente.";
             return RedirectToAction(nameof(Comprobante), new { id = venta.Id });
         }
         catch (InvalidOperationException ex)
         {
+            if (solicitaJson) return BadRequest(new { mensaje = ex.Message });
             ModelState.AddModelError(string.Empty, ex.Message);
             return View(await ReconstruirAsync(modelo));
         }
