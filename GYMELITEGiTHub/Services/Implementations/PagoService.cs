@@ -25,11 +25,11 @@ public class PagoService : IPagoService
     {
         if (filtros.FechaDesde.HasValue && filtros.FechaHasta.HasValue &&
             filtros.FechaDesde.Value > filtros.FechaHasta.Value)
-            throw new InvalidOperationException("La fecha inicial no puede ser posterior a la final.");
+            throw new ReglaNegocioException("La fecha inicial no puede ser posterior a la final.", TipoRechazo.DatoInvalido);
 
         if (!string.IsNullOrWhiteSpace(filtros.Estado) &&
             filtros.Estado != EstadosNegocio.PagoRegistrado && filtros.Estado != EstadosNegocio.PagoAnulado)
-            throw new InvalidOperationException("Seleccione un estado de pago válido.");
+            throw new ReglaNegocioException("Seleccione un estado de pago válido.", TipoRechazo.DatoInvalido);
 
         var pagos = await _pagos.BuscarAsync(filtros.Busqueda, filtros.Estado, filtros.FechaDesde, filtros.FechaHasta);
         var resumen = await _pagos.ObtenerResumenDelDiaAsync(DateOnly.FromDateTime(DateTime.Today));
@@ -52,7 +52,7 @@ public class PagoService : IPagoService
         await CargarOpcionesAsync(modelo);
 
         if (membresiaId.HasValue && modelo.MembresiaSeleccionada is null)
-            throw new InvalidOperationException("La membresía seleccionada no está disponible para el cobro. Debe estar pendiente de pago.");
+            throw new ReglaNegocioException("La membresía seleccionada no está disponible para el cobro. Debe estar pendiente de pago.");
 
         return modelo;
     }
@@ -73,22 +73,22 @@ public class PagoService : IPagoService
     public async Task<PagoDto> RegistrarAsync(PagoRegistrarViewModel modelo)
     {
         if (!modelo.MembresiaId.HasValue || modelo.MembresiaId.Value <= 0)
-            throw new InvalidOperationException("Seleccione una membresía pendiente de pago.");
+            throw new ReglaNegocioException("Seleccione una membresía pendiente de pago.", TipoRechazo.DatoInvalido);
 
         var membresia = await _membresias.GetByIdAsync(modelo.MembresiaId.Value)
-            ?? throw new InvalidOperationException("La membresía seleccionada no existe.");
+            ?? throw new ReglaNegocioException("La membresía seleccionada no existe.", TipoRechazo.ReferenciaInexistente);
 
         if (membresia.EstaCancelada)
-            throw new InvalidOperationException("No se puede cobrar una membresía cancelada.");
+            throw new ReglaNegocioException("No se puede cobrar una membresía cancelada.");
 
         if (membresia.TienePagoValido || await _pagos.ExistePagoValidoAsync(membresia.Id))
-            throw new InvalidOperationException("La membresía ya tiene un pago válido. Puede consultar o reimprimir su recibo.");
+            throw new ReglaNegocioException("La membresía ya tiene un pago válido. Puede consultar o reimprimir su recibo.");
 
         if (membresia.Vigencia != EstadoVigencia.PendientePago)
-            throw new InvalidOperationException("La membresía no está pendiente de pago. Revise sus fechas antes de cobrar.");
+            throw new ReglaNegocioException("La membresía no está pendiente de pago. Revise sus fechas antes de cobrar.");
 
         if (membresia.Total <= 0m || membresia.Total > 999999m)
-            throw new InvalidOperationException("El importe de la membresía debe ser mayor que cero y no superar $999,999.00.");
+            throw new ReglaNegocioException("El importe de la membresía debe ser mayor que cero y no superar $999,999.00.");
 
         var pago = new Pago
         {
@@ -112,9 +112,9 @@ public class PagoService : IPagoService
         if (pago is null) return false;
 
         if (pago.Estado == EstadosNegocio.PagoAnulado)
-            throw new InvalidOperationException("El pago ya está anulado.");
+            throw new ReglaNegocioException("El pago ya está anulado.");
         if (pago.Estado != EstadosNegocio.PagoRegistrado)
-            throw new InvalidOperationException("Solo se puede anular un pago registrado.");
+            throw new ReglaNegocioException("Solo se puede anular un pago registrado.");
 
         pago.Estado = EstadosNegocio.PagoAnulado;
         await _unitOfWork.SaveChangesAsync();

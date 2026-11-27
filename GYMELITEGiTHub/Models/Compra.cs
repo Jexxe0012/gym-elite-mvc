@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace GYMELITEGiTHub.Models;
 
 public class Compra
@@ -8,6 +10,8 @@ public class Compra
     public Proveedor? Proveedor { get; set; }
 
     public DateTime Fecha { get; set; }
+
+    [ConcurrencyCheck]
     public string Estado { get; set; } = "Registrada";
     public string UsuarioResponsableId { get; set; } = string.Empty;
 

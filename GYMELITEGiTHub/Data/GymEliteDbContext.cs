@@ -1,12 +1,18 @@
+
 using GYMELITEGiTHub.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace GYMELITEGiTHub.Data;
 
-public class GymEliteDbContext : DbContext
+public class GymEliteDbContext : IdentityDbContext
 {
-    public GymEliteDbContext(DbContextOptions<GymEliteDbContext> options) : base(options) { }
+    public GymEliteDbContext(
+        DbContextOptions<GymEliteDbContext> options) : base(options)
+    {
+    }
 
+    // Entidades del gimnasio
     public DbSet<Socio> Socios => Set<Socio>();
     public DbSet<TipoMembresia> TiposMembresia => Set<TipoMembresia>();
     public DbSet<Membresia> Membresias => Set<Membresia>();
@@ -22,6 +28,9 @@ public class GymEliteDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder b)
     {
+        // Configuración base de ASP.NET Core Identity
+        base.OnModelCreating(b);
+
         // Índices únicos
         b.Entity<Socio>().HasIndex(s => s.Codigo).IsUnique();
         b.Entity<Socio>().HasIndex(s => s.CodigoQr).IsUnique();
@@ -61,10 +70,10 @@ public class GymEliteDbContext : DbContext
 
         // Datos iniciales (precios de los mockups; ajústenlos a los reales)
         b.Entity<TipoMembresia>().HasData(
-            new TipoMembresia { Id = 1, Nombre = "Mensual",     Modalidad = "Mensualidad", DuracionDias = 30,  Precio = 25m },
-            new TipoMembresia { Id = 2, Nombre = "Trimestral",  Modalidad = "Mensualidad", DuracionDias = 90,  Precio = 65m },
-            new TipoMembresia { Id = 3, Nombre = "Semestral",   Modalidad = "Mensualidad", DuracionDias = 180, Precio = 120m },
-            new TipoMembresia { Id = 4, Nombre = "Anual",       Modalidad = "Mensualidad", DuracionDias = 365, Precio = 220m },
-            new TipoMembresia { Id = 5, Nombre = "Pase diario", Modalidad = "Pase diario", DuracionDias = 1,   Precio = 5m });
+            new TipoMembresia { Id = 1, Nombre = "Mensual", Modalidad = "Mensualidad", DuracionDias = 30, Precio = 25m },
+            new TipoMembresia { Id = 2, Nombre = "Trimestral", Modalidad = "Mensualidad", DuracionDias = 90, Precio = 65m },
+            new TipoMembresia { Id = 3, Nombre = "Semestral", Modalidad = "Mensualidad", DuracionDias = 180, Precio = 120m },
+            new TipoMembresia { Id = 4, Nombre = "Anual", Modalidad = "Mensualidad", DuracionDias = 365, Precio = 220m },
+            new TipoMembresia { Id = 5, Nombre = "Pase diario", Modalidad = "Pase diario", DuracionDias = 1, Precio = 5m });
     }
 }

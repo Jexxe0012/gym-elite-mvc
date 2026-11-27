@@ -30,7 +30,7 @@ public class ProductoService : IProductoService
             Productos = productos.Select(p => ADto(p)).ToList(),
             ProductosActivos = todos.Count(p => p.Activo),
             ProductosStockBajo = todos.Count(p => p.Activo && p.Existencias <= p.StockMinimo),
-            UnidadesDisponibles = todos.Where(p => p.Activo).Sum(p => p.Existencias)
+            UnidadesDisponibles = todos.Where(p => p.Activo).Sum(p => (long)p.Existencias)
         };
     }
 
@@ -44,9 +44,9 @@ public class ProductoService : IProductoService
     {
         var codigo = modelo.Codigo.Trim().ToUpperInvariant();
         if (await _productos.ExisteCodigoAsync(codigo))
-            throw new InvalidOperationException("Ya existe un producto con ese código.");
+            throw new ReglaNegocioException("Ya existe un producto con ese código.");
         if (!ProductoCreateViewModel.Categorias.Contains(modelo.Categoria))
-            throw new InvalidOperationException("La categoría seleccionada no es válida.");
+            throw new ReglaNegocioException("La categoría seleccionada no es válida.", TipoRechazo.DatoInvalido);
 
         await _unitOfWork.BeginTransactionAsync();
         try
@@ -86,7 +86,7 @@ public class ProductoService : IProductoService
         var producto = await _productos.GetByIdAsync(modelo.Id);
         if (producto is null) return false;
         if (!ProductoCreateViewModel.Categorias.Contains(modelo.Categoria))
-            throw new InvalidOperationException("La categoría seleccionada no es válida.");
+            throw new ReglaNegocioException("La categoría seleccionada no es válida.", TipoRechazo.DatoInvalido);
 
         producto.Nombre = modelo.Nombre.Trim();
         producto.Categoria = modelo.Categoria;
@@ -106,7 +106,7 @@ public class ProductoService : IProductoService
         else if (modelo.Tipo == EstadosNegocio.MovimientoSalida)
             await _inventario.RegistrarSalidaAsync(modelo.ProductoId, modelo.Cantidad, modelo.Motivo, "Ajuste", null);
         else
-            throw new InvalidOperationException("El tipo de ajuste no es válido.");
+            throw new ReglaNegocioException("El tipo de ajuste no es válido.", TipoRechazo.DatoInvalido);
 
         await _unitOfWork.SaveChangesAsync();
         return true;

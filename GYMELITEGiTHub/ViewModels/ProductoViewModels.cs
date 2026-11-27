@@ -79,5 +79,5 @@ public class ProductoListaViewModel
     public List<ProductoDto> Productos { get; set; } = new();
     public int ProductosActivos { get; set; }
     public int ProductosStockBajo { get; set; }
-    public int UnidadesDisponibles { get; set; }
+    public long UnidadesDisponibles { get; set; }
 }

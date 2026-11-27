@@ -11,4 +11,5 @@ public interface ITipoMembresiaService
     Task<bool> UpdateAsync(TipoMembresiaFormViewModel modelo);
     /// <summary>Activa o desactiva el plan. Devuelve null si no existe.</summary>
     Task<TipoMembresiaDto?> CambiarEstadoAsync(int id);
+    Task<bool> DesactivarAsync(int id);
 }
