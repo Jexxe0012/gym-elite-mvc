@@ -14,6 +14,11 @@ public class ProductosController : Controller
         View(await _productos.GetListaAsync(busqueda, categoria));
 
     [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> Filtrar(string? busqueda, string? categoria) =>
+        Json(await _productos.GetListaAsync(busqueda, categoria));
+
+    [HttpGet]
     public IActionResult Crear() => View(new ProductoCreateViewModel());
 
     [HttpPost, ValidateAntiForgeryToken]
