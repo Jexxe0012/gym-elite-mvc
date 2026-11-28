@@ -35,6 +35,7 @@ public sealed class SociosApiController(ISocioService socios, IMembresiaService 
     }
 
     [HttpPut("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Actualizar(int id, SocioActualizacion entrada) =>
         SinContenidoSiExiste(await socios.UpdateAsync(new SocioEditViewModel
         {
@@ -47,6 +48,7 @@ public sealed class SociosApiController(ISocioService socios, IMembresiaService 
         }));
 
     [HttpDelete("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Desactivar(int id) =>
         SinContenidoSiExiste(await socios.DesactivarAsync(id));
 }

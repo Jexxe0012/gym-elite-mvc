@@ -33,6 +33,7 @@ public sealed class ProductosApiController(IProductoService productos) : ApiCont
     }
 
     [HttpPut("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Actualizar(int id, ProductoActualizacion entrada) =>
         SinContenidoSiExiste(await productos.UpdateAsync(new ProductoEditViewModel
         {
@@ -45,6 +46,7 @@ public sealed class ProductosApiController(IProductoService productos) : ApiCont
         }));
 
     [HttpPost("{id:int:min(1)}/ajustes")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Ajustar(int id, AjusteInventarioEntrada entrada) =>
         SinContenidoSiExiste(await productos.AjustarAsync(new ProductoAjusteViewModel
         {
@@ -55,6 +57,7 @@ public sealed class ProductosApiController(IProductoService productos) : ApiCont
         }));
 
     [HttpDelete("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Desactivar(int id) =>
         SinContenidoSiExiste(await productos.DesactivarAsync(id));
 }

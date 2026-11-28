@@ -38,6 +38,7 @@ public sealed class PagosApiController(IPagoService pagos) : ApiControllerBase
     }
 
     [HttpPost("{id:int:min(1)}/anulacion")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Anular(int id) =>
         SinContenidoSiExiste(await pagos.AnularAsync(id));
 }

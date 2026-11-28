@@ -28,6 +28,7 @@ public sealed class ProveedoresApiController(IProveedorService proveedores) : Ap
     }
 
     [HttpPut("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Actualizar(int id, ProveedorCreateViewModel entrada) =>
         SinContenidoSiExiste(await proveedores.UpdateAsync(new ProveedorEditViewModel
         {
@@ -38,6 +39,7 @@ public sealed class ProveedoresApiController(IProveedorService proveedores) : Ap
         }));
 
     [HttpDelete("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Eliminar(int id) =>
         SinContenidoSiExiste(await proveedores.EliminarAsync(id));
 }

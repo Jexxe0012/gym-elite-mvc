@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AgregarDocumentacionApi();
 
 // Base de datos
 builder.Services.AddDbContext<GymEliteDbContext>(options =>
@@ -212,6 +213,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UsarDocumentacionApi();
 
 app.MapControllerRoute(
     name: "default",

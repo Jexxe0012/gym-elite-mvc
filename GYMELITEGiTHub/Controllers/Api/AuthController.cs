@@ -29,17 +29,17 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(
+    [ProducesResponseType<LoginTokenRespuesta>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorLoginRespuesta>(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<LoginTokenRespuesta>> Login(
         [FromBody] LoginRequest request)
     {
         var usuario = await _userManager.FindByEmailAsync(request.Email);
 
         if (usuario == null)
         {
-            return Unauthorized(new
-            {
-                mensaje = "Credenciales incorrectas."
-            });
+            return Unauthorized(new ErrorLoginRespuesta("Credenciales incorrectas."));
         }
 
         var resultado = await _signInManager.CheckPasswordSignInAsync(
@@ -49,10 +49,7 @@ public class AuthController : ControllerBase
 
         if (!resultado.Succeeded)
         {
-            return Unauthorized(new
-            {
-                mensaje = "Credenciales incorrectas."
-            });
+            return Unauthorized(new ErrorLoginRespuesta("Credenciales incorrectas."));
         }
 
         var token = await _jwtService.GenerarTokenAsync(usuario);
@@ -60,14 +57,13 @@ public class AuthController : ControllerBase
         var minutos = _configuration.GetValue<int>(
             "Jwt:ExpirationMinutes");
 
-        return Ok(new
-        {
-            accessToken = token,
-            tokenType = "Bearer",
-            expiresAt = DateTime.UtcNow.AddMinutes(minutos)
-        });
+        return Ok(new LoginTokenRespuesta(token, ApiConfiguracion.Esquema, DateTime.UtcNow.AddMinutes(minutos)));
     }
 }
+
+public sealed record LoginTokenRespuesta(string AccessToken, string TokenType, DateTime ExpiresAt);
+
+public sealed record ErrorLoginRespuesta(string Mensaje);
 
 public class LoginRequest
 {
