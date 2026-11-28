@@ -37,7 +37,8 @@ public sealed class ApiExceptionFilter(ILogger<ApiExceptionFilter> logger) : IEx
 
         if (status == 500)
             logger.LogError(context.Exception, "Error de API en {Accion}. Id de seguimiento: {TraceId}",
-                context.ActionDescriptor.DisplayName, context.HttpContext.TraceIdentifier);
+                context.ActionDescriptor.DisplayName,
+                System.Diagnostics.Activity.Current?.Id ?? context.HttpContext.TraceIdentifier);
 
         var factory = context.HttpContext.RequestServices
             .GetRequiredService<Microsoft.AspNetCore.Mvc.Infrastructure.ProblemDetailsFactory>();

@@ -1,19 +1,45 @@
 
 using GYMELITEGiTHub.Controllers.Api;
 using GYMELITEGiTHub.Data;
+using GYMELITEGiTHub.Infraestructura;
 using GYMELITEGiTHub.Repositories.Implementations;
 using GYMELITEGiTHub.Repositories.Interfaces;
 using GYMELITEGiTHub.Services.Implementations;
 using GYMELITEGiTHub.Services.Interfaces;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
 
 
+// Registro temporal para errores de arranque (configuración faltante, base inaccesible, etc.).
+// Se reemplaza por la configuración completa de RegistroEventos al construir la aplicación.
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
+try
+{
 var builder = WebApplication.CreateBuilder(args);
+
+// Logging, manejo de excepciones y monitoreo (Etapa 4, apartados 6 y 7)
+builder.AgregarRegistroEventos();
+builder.Services.AgregarManejoExcepciones();
+builder.Services.AgregarMonitoreo();
+
+// Claves de Data Protection persistentes (cookies de sesión y antiforgery válidas tras reiniciar en IIS).
+// En Azure App Service no hace falta: la plataforma ya conserva las claves.
+var rutaClaves = builder.Configuration["DataProtection:RutaClaves"];
+if (!string.IsNullOrWhiteSpace(rutaClaves))
+{
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(rutaClaves))
+        .SetApplicationName("GYMELITE");
+}
 
 builder.Services.AddControllersWithViews();
 builder.Services.AgregarDocumentacionApi();
@@ -123,6 +149,13 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var configuration = services.GetRequiredService<IConfiguration>();
 
+    // 0. Migraciones al iniciar: solo si el entorno lo habilita (útil en el despliegue).
+    if (configuration.GetValue<bool>("BaseDatos:AplicarMigracionesAlIniciar"))
+    {
+        await services.GetRequiredService<GymEliteDbContext>().Database.MigrateAsync();
+        Log.Information("Migraciones de base de datos aplicadas al iniciar.");
+    }
+
     // 1. Crear roles si todavía no existen
     string[] roles =
     {
@@ -196,14 +229,19 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Excepciones no controladas y páginas de estado (todos los entornos)
+app.UsarManejoExcepciones();
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// Una línea de registro por solicitud (no incluye archivos estáticos)
+app.UsarRegistroSolicitudes();
 
 app.UseRouting();
 
@@ -212,6 +250,11 @@ app.UsarRespuestasApi();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Usuario e id de seguimiento en todos los registros de la solicitud
+app.UsarContextoRegistro();
+
+app.MapearMonitoreo();
+
 app.MapControllers();
 app.UsarDocumentacionApi();
 
@@ -219,4 +262,17 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+Log.Information("GYM ELITE iniciado en el entorno {Entorno}.", app.Environment.EnvironmentName);
+
 app.Run();
+}
+catch (Exception ex) when (ex is not HostAbortedException)
+{
+    // HostAbortedException la usan las herramientas de EF (dotnet ef) y no es un error.
+    Log.Fatal(ex, "La aplicación no pudo iniciar.");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -1,6 +1,6 @@
 # GYM ELITE — Base MVC
 
-Para la integración de la etapa 4, consulta el [contrato de la API REST](docs/api-fase4.md).
+Para la integración de la etapa 4, consulta el [contrato de la API REST](docs/api-fase4.md) y la guía de [logging, monitoreo y despliegue](docs/despliegue-y-monitoreo.md).
 
 Proyecto universitario de gestión de gimnasio para la asignatura Desarrollo de Aplicaciones con Software Propietario, Universidad Don Bosco.
 
