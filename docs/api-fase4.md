@@ -1,18 +1,26 @@
 # Contrato de la API REST
 
-La API de GYM ELITE usa rutas bajo `/api` y JSON con nombres de propiedades en camelCase. Los controladores reutilizan los servicios que usan las pantallas MVC. La configuración de Swagger, la emisión de JWT y la integración con Fetch se coordinan con los responsables de esos frentes.
+La API de GYM ELITE usa rutas bajo `/api` y JSON con nombres de propiedades en camelCase. Los controladores reutilizan los servicios que usan las pantallas MVC. Las pantallas con Fetch pueden usar la sesión MVC para las rutas de su interfaz.
 
 ## Autenticación y permisos
 
-Las solicitudes llevan `Authorization: Bearer <token>`. El esquema que registra el frente de seguridad debe llamarse `Bearer`. La aplicación devuelve `503` mientras ese esquema no esté registrado. Una vez configurado, las peticiones requieren identidad autenticada y el rol correspondiente.
+Obtén un JWT con `POST /api/auth/login`. Envía `email` y `password` como JSON usando una cuenta de prueba o tu propia cuenta habilitada. Una solicitud válida responde `200` con `accessToken`, `tokenType` y `expiresAt`. Las demás solicitudes a la API llevan `Authorization: Bearer <token>`.
 
 | Política | Roles admitidos | Operaciones |
 | --- | --- | --- |
-| `ApiRecepcion` | `Administrador`, `Recepcion` | Socios, lectura de planes, membresías, pagos y accesos |
-| `ApiInventario` | `Administrador`, `Inventario` | Productos, proveedores, compras y ventas |
-| `ApiAdministracion` | `Administrador` | Escritura de planes y consulta de reportes |
+| `ApiRecepcion` | `Administrador`, `Recepcion`, `Inventario` | Socios, planes, membresías, pagos y accesos |
+| `ApiInventario` | `Administrador`, `Recepcion`, `Inventario` | Productos, proveedores, compras y ventas |
+| `ApiAdministracion` | `Administrador` | Consulta de reportes |
 
-Los nombres de roles son la propuesta inicial para integrar con Identity. Alexander puede ajustar la configuración de las políticas según la matriz acordada. Los tokens deben aportar los roles que ASP.NET Core usa para autorizar. César debe enviar el bearer al consumir estas rutas o usar el mecanismo servidor a servidor acordado con Alexander. Las vistas MVC mantienen sus rutas.
+Los permisos corresponden a la [matriz de seguridad](seguridad-permisos.md). Las rutas `/api` validan el JWT. Rutas de interfaz como `/Productos/Filtrar`, `/Ventas/Nueva` y `/Reportes` usan la sesión de MVC. Para guardar mediante un formulario MVC, envía también su token antifalsificación.
+
+## Swagger y OpenAPI
+
+En el entorno `Development`, abre `/swagger` en la dirección HTTPS de la aplicación. El documento OpenAPI se puede consultar en `/swagger/v1/swagger.json`.
+
+1. Abre **Autenticación**, ejecuta `POST /api/auth/login` con una cuenta de prueba y copia `accessToken`.
+2. Pulsa **Authorize** y pega el valor del token. Swagger agrega el encabezado Bearer a las operaciones protegidas.
+3. Abre **Productos** y ejecuta `GET /api/productos` con `categoria=Bebidas`. Comprueba el estado `200`, el arreglo `productos` y los tres contadores.
 
 ## Endpoints
 
@@ -20,6 +28,7 @@ Todos los parámetros de fecha usan `YYYY-MM-DD`. `fechaDesde` y `fechaHasta` so
 
 | Recurso | Métodos y rutas | Entrada y salida |
 | --- | --- | --- |
+| Autenticación | `POST /api/auth/login` | `email` y `password`. Devuelve el JWT y su vencimiento. |
 | Socios | `GET /api/socios`, `GET /api/socios/{id}`, `GET /api/socios/{id}/membresias` | `busqueda` opcional en la lista. Devuelve socios, su ficha o sus membresías. |
 | Socios | `POST /api/socios`, `PUT /api/socios/{id}`, `DELETE /api/socios/{id}` | Crear y editar datos del socio. PUT requiere `estaHabilitado`. DELETE desactiva la ficha y conserva el historial. |
 | Planes | `GET /api/planes`, `GET /api/planes/{id}` | `soloActivos=true` opcional en la lista. |
@@ -96,4 +105,4 @@ Los errores usan `application/problem+json`. La validación de entradas devuelve
 
 107 comprobaciones HTTP pasaron en una copia local con SQL Server LocalDB y datos ficticios. Se verificaron las respuestas, los enlaces `Location`, los cambios de inventario y su reflejo en reportes. En el ensayo simultáneo, dos solicitudes intentaron vender la última unidad y solo una se registró. Dos anulaciones simultáneas de esa venta devolvieron la unidad una sola vez.
 
-Para probar los permisos se usaron identidades de prueba en una copia separada. También se verificó el cierre de la API con `503` al faltar el esquema Bearer. La comprobación con JWT reales queda para la integración de Identity.
+En ese ensayo, para probar los permisos se usaron identidades de prueba en una copia separada. También se verificó el cierre de la API con `503` al faltar el esquema Bearer.

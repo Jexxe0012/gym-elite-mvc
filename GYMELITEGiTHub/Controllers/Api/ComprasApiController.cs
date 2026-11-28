@@ -47,6 +47,7 @@ public sealed class ComprasApiController(ICompraService compras) : ApiController
     }
 
     [HttpPost("{id:int:min(1)}/anulacion")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Anular(int id) =>
         SinContenidoSiExiste(await compras.AnularAsync(id));
 }

@@ -27,11 +27,13 @@ public sealed class PlanesApiController(ITipoMembresiaService planes) : ApiContr
     }
 
     [HttpPut("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize(Policy = ApiConfiguracion.Recepcion)]
     public async Task<IActionResult> Actualizar(int id, PlanActualizacion entrada) =>
         SinContenidoSiExiste(await planes.UpdateAsync(entrada.AModelo(id, entrada.Activo!.Value)));
 
     [HttpDelete("{id:int:min(1)}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize(Policy = ApiConfiguracion.Recepcion)]
     public async Task<IActionResult> Desactivar(int id) =>
         SinContenidoSiExiste(await planes.DesactivarAsync(id));
