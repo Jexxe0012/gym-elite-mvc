@@ -1,10 +1,24 @@
-# GYM ELITE — Base MVC
+# GYM ELITE
 
 Para la integración de la etapa 4, consulta el [contrato de la API REST](docs/api-fase4.md) y la guía de [logging, monitoreo y despliegue](docs/despliegue-y-monitoreo.md).
 
 Proyecto universitario de gestión de gimnasio para la asignatura Desarrollo de Aplicaciones con Software Propietario, Universidad Don Bosco.
 
-Este repositorio comienza desde la plantilla `GYMELITEGiTHub` entregada por un integrante del equipo. El código de la plantilla se conserva como punto de partida; se agregan este README y un `.gitignore` para el trabajo compartido.
+El proyecto partió de la plantilla `GYMELITEGiTHub`. La versión de la etapa 4 incluye autenticación, administración de usuarios por roles y persistencia en SQL Server.
+
+## Demo en Azure
+
+[Abrir GYM ELITE](https://gymelite-udb-demo-2026-hbdbg7bjckgnhkea.westus3-01.azurewebsites.net/)
+
+| Campo | Valor |
+| --- | --- |
+| Correo | `admin@gymelite-udb-demo.example` |
+| Contraseña | Pedila por privado al responsable del despliegue. |
+| Rol | Administrador |
+
+Esta cuenta corresponde a la aplicación publicada en Azure. El menú **Usuarios** permite crear accesos de Recepción e Inventario.
+
+La versión publicada corresponde al commit `888a170`. Se verificó que abre el formulario de inicio de sesión y que [el endpoint de estado](https://gymelite-udb-demo-2026-hbdbg7bjckgnhkea.westus3-01.azurewebsites.net/health) confirma la conexión con `GymEliteDb`.
 
 ## Tecnología
 
@@ -33,22 +47,14 @@ La solución conserva el nombre del proyecto enviado por el compañero. El archi
 
 Abrir `GYMELITEGiTHub/GYMELITEGiTHub.csproj` en Visual Studio con la carga de trabajo de desarrollo web y los componentes de .NET 8 instalados.
 
+Para ejecutar una copia local, configurá `ConnectionStrings:GymEliteDb`, `Jwt:SecretKey`, `BootstrapAdmin:Email` y `BootstrapAdmin:Password` con valores de tu entorno mediante el Administrador de secretos de .NET.
+
 Desde una terminal con el SDK correspondiente:
 
 ```sh
 dotnet restore GYMELITEGiTHub/GYMELITEGiTHub.csproj
 dotnet run --project GYMELITEGiTHub/GYMELITEGiTHub.csproj
 ```
-
-## Estado de esta entrega inicial
-
-La plantilla contiene controladores para inicio, cuenta, socios, membresías, pagos, productos, compras, ventas y reportes, junto con carpetas de vistas y un layout compartido.
-
-Es una base de arquitectura. Las vistas de varios módulos son marcadores de posición y contienen texto de clases que deberá convertirse en contenido Razor/HTML. Existe una vista de accesos, pero aún falta su controlador. El formulario de inicio de sesión es visual: no implementa autenticación ni permisos y requiere ajustar su envío antes de usar credenciales.
-
-Los modelos de negocio, ViewModels, DTOs, validaciones, persistencia y operaciones CRUD se integrarán en los siguientes aportes del equipo. El único modelo presente en la plantilla inicial es `ErrorViewModel`.
-
-No se ha ejecutado la compilación ni la aplicación durante la preparación de este repositorio.
 
 ## Prototipo de interfaz
 
