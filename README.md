@@ -13,7 +13,7 @@ El proyecto partió de la plantilla `GYMELITEGiTHub`. La versión de la etapa 4 
 | Campo | Valor |
 | --- | --- |
 | Correo | `admin@gymelite-udb-demo.example` |
-| Contraseña | Pedila por privado al responsable del despliegue. |
+| Contraseña | Ge9!DC730003FF9D4F877A275CCEE5F055529F67BBF6AA7097EA |
 | Rol | Administrador |
 
 Esta cuenta corresponde a la aplicación publicada en Azure. El menú **Usuarios** permite crear accesos de Recepción e Inventario.
